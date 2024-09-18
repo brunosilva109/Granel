@@ -1,0 +1,31 @@
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Arial', sans-serif;
+    background-color: #f0f0f0;
+    transition: background-color 0.3s ease;
+}
+
+#gameImage {
+    max-width: 100%;
+    height: auto;
+}
+
+h1 {
+    color: #333;
+}
+
+.form-select {
+    width: 100%;
+}
+.iconeTamanho{
+    width: 60px;
+}
+.bg-amarelo{
+    background-color:#fcb900;
+}
+.branco{
+    color: white;
+    font-size: 20px;
+}

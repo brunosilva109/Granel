@@ -1,0 +1,16 @@
+.catalogo-item {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.catalogo-item img {
+    width: 100%;
+    height: auto;
+    max-height: 200px;
+    object-fit: cover;
+    border-radius: 10px;
+}
+
+.catalogo-item h5 {
+    margin-top: 15px;
+}
