@@ -1,7 +1,7 @@
 const config = {
     type: Phaser.AUTO,
-    width: 1000,
-    height: 800,
+    width: 1900,
+    height: 900,
     physics: {
         default: 'arcade',
         arcade: {
@@ -25,13 +25,14 @@ let cursors;
 // Função de pré-carregamento (Carrega os assets)
 function preload() {
     // Carregando a imagem do personagem
-    this.load.image('sky', 'https://raw.githubusercontent.com/brunosilva109/Granel/main/img/ceu.png',);
-    this.load.image('ground', 'https://labs.phaser.io/assets/sprites/platform.png');
-    this.load.image('star', 'https://labs.phaser.io/assets/demoscene/star2.png');
+    this.load.image('sky', 'https://raw.githubusercontent.com/brunosilva109/Granel/main/img/MAPA.png',);
+    this.load.image('ground', 'https://raw.githubusercontent.com/brunosilva109/Granel/refs/heads/main/img/muroVertical.png');
+    this.load.image('topo', 'https://raw.githubusercontent.com/brunosilva109/Granel/refs/heads/main/img/parede%20topo.png');
     this.load.spritesheet('esquerda', 'https://raw.githubusercontent.com/brunosilva109/Granel/main/img/personagem/esquerda.png', { frameWidth: 58, frameHeight: 65 });
     this.load.spritesheet('direita', 'https://raw.githubusercontent.com/brunosilva109/Granel/main/img/personagem/direita.png', { frameWidth: 59, frameHeight: 65 });
     this.load.spritesheet('cima', 'https://raw.githubusercontent.com/brunosilva109/Granel/main/img/personagem/costas.png', { frameWidth: 58, frameHeight: 65 });
     this.load.spritesheet('baixo', 'https://raw.githubusercontent.com/brunosilva109/Granel/main/img/personagem/frente.png', { frameWidth: 58, frameHeight: 65 });
+
 }
 
 // Função de criação dos objetos do jogo
@@ -51,13 +52,13 @@ function create() {
 
     // Adiciona plataformas
     let platforms = this.physics.add.staticGroup();
-    platforms.create(400, 568, 'ground').setScale(2).refreshBody();
-    platforms.create(600, 400, 'ground');
-    platforms.create(50, 250, 'ground');
-    platforms.create(750, 220, 'ground');
+
+    platforms.create(380,448, 'ground');
+    platforms.create(1518, 447, 'ground');
+    platforms.create(954, 120, 'topo');
 
     // Adiciona o jogador
-    player = this.physics.add.sprite(100, 450, 'baixo');
+    player = this.physics.add.sprite(800, 450, 'baixo');
 
     // Definindo física do jogador
     player.setBounce(0.2); // Faz o jogador quicar
@@ -123,55 +124,5 @@ function update() {
         player.setVelocityY(0);
         player.anims.play('dude');
     }
-    // Adicionando botões de toque na tela
-    const leftButton = this.add.rectangle(50, 550, 50, 50, 0x6666ff).setInteractive();
-    const rightButton = this.add.rectangle(110, 550, 50, 50, 0x6666ff).setInteractive();
-    const upButton = this.add.rectangle(80, 490, 50, 50, 0x6666ff).setInteractive();
-    const downButton = this.add.rectangle(80, 610, 50, 50, 0x6666ff).setInteractive();
-
-    // Variáveis para armazenar o estado de toque
-    let leftPressed = false;
-    let rightPressed = false;
-    let upPressed = false;
-    let downPressed = false;
-
-    // Eventos de toque
-    leftButton.on('pointerdown', () => leftPressed = true);
-    leftButton.on('pointerup', () => leftPressed = false);
-    
-    rightButton.on('pointerdown', () => rightPressed = true);
-    rightButton.on('pointerup', () => rightPressed = false);
-
-    upButton.on('pointerdown', () => upPressed = true);
-    upButton.on('pointerup', () => upPressed = false);
-    
-    downButton.on('pointerdown', () => downPressed = true);
-    downButton.on('pointerup', () => downPressed = false);
-
-    // Chamando o update() em cada frame
-    this.update = function() {
-        // Controle de movimento usando os botões de toque
-        if (leftPressed) {
-            player.setVelocityX(-160);
-            player.setVelocityY(0);
-            player.anims.play('left', true);
-        } else if (rightPressed) {
-            player.setVelocityX(160);
-            player.setVelocityY(0);
-            player.anims.play('right', true);
-        } else if (upPressed) {
-            player.setVelocityX(0);
-            player.setVelocityY(-160);
-            player.anims.play('up', true);
-        } else if (downPressed) {
-            player.setVelocityX(0);
-            player.setVelocityY(160);
-            player.anims.play('down', true);
-        } else {
-            player.setVelocityX(0);
-            player.setVelocityY(0);
-            player.anims.play('dude');
-        }
-    };
     
 }
