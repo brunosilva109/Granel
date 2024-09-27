@@ -37,11 +37,21 @@ let timer; // Variável para armazenar o temporizador
 let countdownTime = 120; // Tempo em segundos para a contagem regressiva
 
 const questions = [
-    { question: 'pode misturar 2 produtos ?', options: ['Sim', 'Não', 'Sempre', 'A vezes'], answer: 'Não' },
-    { question: 'Pode Andar sem EPI na Area ?',  options: ['Sim', 'Não', 'Sempre', 'A vezes'], answer: 'Não'},
-    { question: 'Uso de Mangote para Descarga de Caminhão é Correto ?', options: ['Sim', 'Não', 'Sempre', 'A vezes'], answer: 'Sim' },
-    { question: 'Referente ao uso de cinto de seguração em Trabalhos acima de 3 metros', options: ['Não deve ser Usador', 'Somente Acima de 8 Metros', 'Somente Abaixo de 3 Metros', 'Sempre Usar'], answer: 'Sempre Usar' }
-  
+    { question: 'Pode misturar dois produtos?', options: ['Sim', 'Não', 'Sempre', 'Às vezes'], answer: 'Não' },
+    { question: 'Pode andar sem EPI na área?', options: ['Sim', 'Não', 'Sempre', 'Às vezes'], answer: 'Não' },
+    { question: 'O uso de mangote para descarga de caminhão é correto?', options: ['Sim', 'Não', 'Sempre', 'Às vezes'], answer: 'Sim' },
+    { question: 'Referente ao uso de cinto de segurança em trabalhos acima de 3 metros:', options: ['Não deve ser usado', 'Somente acima de 8 metros', 'Somente abaixo de 3 metros', 'Sempre usar'], answer: 'Sempre usar' },
+    { question: 'É obrigatório o uso de capacete em obras?', options: ['Sim', 'Não', 'Sempre', 'Às vezes'], answer: 'Sim' },
+    { question: 'É permitido trabalhar com fones de ouvido em ambientes de risco?', options: ['Sim', 'Não', 'Sempre', 'Às vezes'], answer: 'Não' },
+    { question: 'Os trabalhadores devem conhecer os procedimentos de emergência?', options: ['Sim', 'Não', 'Sempre', 'Às vezes'], answer: 'Sim' },
+    { question: 'É seguro usar ferramentas danificadas?', options: ['Sim', 'Não', 'Sempre', 'Às vezes'], answer: 'Não' },
+    { question: 'Todos os funcionários devem ser treinados em segurança?', options: ['Sim', 'Não', 'Sempre', 'Às vezes'], answer: 'Sim' },
+    { question: 'O uso de protetores auriculares é necessário em ambientes ruidosos?', options: ['Sim', 'Não', 'Sempre', 'Às vezes'], answer: 'Sim' },
+    { question: 'É importante sinalizar áreas de risco?', options: ['Sim', 'Não', 'Sempre', 'Às vezes'], answer: 'Sim' },
+    { question: 'É permitido fumar em áreas de armazenamento de produtos inflamáveis?', options: ['Sim', 'Não', 'Sempre', 'Às vezes'], answer: 'Não' },
+    { question: 'Deve-se relatar qualquer acidente de trabalho?', options: ['Sim', 'Não', 'Sempre', 'Às vezes'], answer: 'Sim' },
+    { question: 'A manutenção regular dos equipamentos de proteção é necessária?', options: ['Sim', 'Não', 'Sempre', 'Às vezes'], answer: 'Sim' }
+
 ];
 
 let availableQuestions = [...questions];
