@@ -50,7 +50,8 @@ let contador = availableQuestions.length;
 function preload() {
     this.load.image('item', 'https://raw.githubusercontent.com/brunosilva109/Granel/refs/heads/main/img/valvula.png');
     this.load.image('sky', 'https://raw.githubusercontent.com/brunosilva109/Granel/main/img/MAPA.png');
-    this.load.image('ground', 'https://raw.githubusercontent.com/brunosilva109/Granel/refs/heads/main/img/muroVertical.png');
+    this.load.image('direito', 'https://raw.githubusercontent.com/brunosilva109/Granel/refs/heads/main/img/muroDireito.png');
+    this.load.image('esqeurdo', 'https://raw.githubusercontent.com/brunosilva109/Granel/refs/heads/main/img/muroEsquerdo.png');
     this.load.image('topo', 'https://raw.githubusercontent.com/brunosilva109/Granel/refs/heads/main/img/parede%20topo.png');
     this.load.image('boat', 'https://raw.githubusercontent.com/brunosilva109/Granel/refs/heads/main/img/NAVIO.png');
     this.load.spritesheet('esquerda', 'https://raw.githubusercontent.com/brunosilva109/Granel/main/img/personagem/esquerda.png', { frameWidth: 58, frameHeight: 65 });
@@ -61,19 +62,21 @@ function preload() {
 
 function create() {
     let background = this.add.image(0, 0, 'sky');
-    let itens = this.physics.add.staticGroup();
-    itens.create(380, 820, 'item');
-    itens.create(380, 520, 'item');
-    itens.create(1518, 820, 'item');
-    itens.create(1518, 520, 'item');
+    
     background.setOrigin(0, 0);
     background.displayWidth = this.sys.game.config.width;
     background.displayHeight = this.sys.game.config.height;
 
     let platforms = this.physics.add.staticGroup();
-    platforms.create(380, 448, 'ground');
-    platforms.create(1520, 447, 'ground');
+    platforms.create(185, 460, 'esqeurdo');
+    platforms.create(1720, 460, 'direito');
     platforms.create(951, 120, 'topo');
+    // valvulas
+    let valvulaDireitaCima = this.physics.add.sprite(380, 515, 'item');
+    let valvulaDireitaBaixo = this.physics.add.sprite(380, 830, 'item');
+    let valvulaEsquerdaCima = this.physics.add.sprite(1527, 520, 'item')
+    let valvulaEsquerdaBaixo = this.physics.add.sprite(1527, 830, 'item')
+
 
     player = this.physics.add.sprite(800, 450, 'baixo');
     player.setBounce(0.2);
@@ -92,7 +95,10 @@ function create() {
     this.physics.add.overlap(player, boat, () => {
         canInteract = true;
     });
-    this.physics.add.overlap(player, itens, useItem, null, this);
+    this.physics.add.overlap(player, valvulaDireitaCima, useItem, null, this);
+    this.physics.add.overlap(player, valvulaDireitaBaixo, useItem, null, this);
+    this.physics.add.overlap(player, valvulaEsquerdaBaixo, useItem, null, this);
+    this.physics.add.overlap(player, valvulaEsquerdaCima, useItem, null, this);
     cursors = this.input.keyboard.createCursorKeys();
 
     // Configurando o texto do temporizador
@@ -149,6 +155,7 @@ function showCompletionMessage() {
 function useItem() {
     if (podePerguntar && !questionPanel) {
         pararPersonagem = true;
+        timer.paused = true;
         if (availableQuestions.length > 0) {
             const questionIndex = Math.floor(Math.random() * availableQuestions.length);
             const question = availableQuestions[questionIndex];
@@ -171,6 +178,7 @@ function showQuestions(question) {
             hideQuestions.call(this);
             boatSpeed = 2;
             boat.x += boatSpeed;
+            timer.paused = false;
             contador = contador-1;
         });
 
