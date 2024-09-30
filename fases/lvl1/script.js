@@ -1,7 +1,7 @@
 const config = {
     type: Phaser.AUTO,
-    width: 1900,
-    height: 900,
+    width: '100%', // Usa porcentagem para largura responsiva
+    height: '100vh', // Usa porcentagem para altura responsiva
     physics: {
         default: 'arcade',
         arcade: {
@@ -61,7 +61,7 @@ function preload() {
     this.load.image('item', 'https://raw.githubusercontent.com/brunosilva109/Granel/refs/heads/main/img/valvula.png');
     this.load.image('sky', 'https://raw.githubusercontent.com/brunosilva109/Granel/main/img/MAPA.png');
     this.load.image('direito', 'https://raw.githubusercontent.com/brunosilva109/Granel/refs/heads/main/img/muroDireito.png');
-    this.load.image('esqeurdo', 'https://raw.githubusercontent.com/brunosilva109/Granel/refs/heads/main/img/muroEsquerdo.png');
+    this.load.image('esquerdo', 'https://raw.githubusercontent.com/brunosilva109/Granel/refs/heads/main/img/muroEsquerdo.png');
     this.load.image('topo', 'https://raw.githubusercontent.com/brunosilva109/Granel/refs/heads/main/img/parede%20topo.png');
     this.load.image('boat', 'https://raw.githubusercontent.com/brunosilva109/Granel/refs/heads/main/img/NAVIO.png');
     this.load.spritesheet('esquerda', 'https://raw.githubusercontent.com/brunosilva109/Granel/main/img/personagem/esquerda.png', { frameWidth: 58, frameHeight: 65 });
@@ -71,29 +71,69 @@ function preload() {
 }
 
 function create() {
-    let background = this.add.image(0, 0, 'sky');
+    let background = this.add.image(0, 0, 'sky').setScale(this.sys.game.device.pixelRatio);
+   background.setOrigin(0, 0);
+   background.setScale(this.cameras.main.width*0.00052,this.cameras.main.height * 0.001112 );
+    let platform1 = this.physics.add.sprite(this.cameras.main.width * 0.1, this.cameras.main.height * 0.476, 'esquerdo');
+    let platform2 = this.physics.add.sprite(this.cameras.main.width * 0.899999, this.cameras.main.height * 0.476, 'direito');
+    let platform3 = this.physics.add.sprite(this.cameras.main.width / 2, this.cameras.main.height * 0.15, 'topo');
+    let escalaPlataformax;
+    let escalaPlataformay;
+    let escalaPlataformayTopo;
+    if(this.cameras.main.width>=1000){
+        escalaPlataformax= 0.2;
+        escalaPlataformay= 1;
+        escalaPlataformayTopo = 0.2;
+    }
+    else{
+        escalaPlataformax = 0.2;
+        escalaPlataformay= 1;
+        escalaPlataformayTopo = 0.15
+    }
     
-    background.setOrigin(0, 0);
-    background.displayWidth = this.sys.game.config.width;
-    background.displayHeight = this.sys.game.config.height;
+    const escalaXPlataforma= this.cameras.main.width * escalaPlataformax/ platform1.width; 
+    const escalaYPlataforma= this.cameras.main.height * escalaPlataformay/ platform1.height; 
+    const escalaYPlataformaTopo= this.cameras.main.height * escalaPlataformayTopo/ platform3.height;
+    platform1.setScale(escalaXPlataforma, escalaYPlataforma);
+    platform2.setScale(escalaXPlataforma, escalaYPlataforma);
+    platform3.setScale(escalaXPlataforma, escalaYPlataformaTopo);
 
-    let platforms = this.physics.add.staticGroup();
-    platforms.create(185, 460, 'esqeurdo');
-    platforms.create(1720, 460, 'direito');
-    platforms.create(951, 120, 'topo');
     // valvulas
-    let valvulaDireitaCima = this.physics.add.sprite(380, 515, 'item');
-    let valvulaDireitaBaixo = this.physics.add.sprite(380, 830, 'item');
-    let valvulaEsquerdaCima = this.physics.add.sprite(1527, 520, 'item')
-    let valvulaEsquerdaBaixo = this.physics.add.sprite(1527, 830, 'item')
+    let valvulaDireitaCima = this.physics.add.sprite(this.cameras.main.width * 0.2, this.cameras.main.height * 0.55, 'item');
+    let valvulaDireitaBaixo = this.physics.add.sprite(this.cameras.main.width * 0.2, this.cameras.main.height * 0.9, 'item');
+    let valvulaEsquerdaCima = this.physics.add.sprite(this.cameras.main.width * 0.8, this.cameras.main.height * 0.55, 'item');
+    let valvulaEsquerdaBaixo = this.physics.add.sprite(this.cameras.main.width * 0.8, this.cameras.main.height * 0.9, 'item');
+    let escalaValvula;
+    if(this.cameras.main.width>=1000){
+        escalaValvula = 1;
+    }
+    else{
+        escalaValvula = 0.5
+    }
+        
+        valvulaDireitaBaixo.setScale(escalaValvula);
+        valvulaDireitaCima.setScale(escalaValvula);
+        valvulaEsquerdaBaixo.setScale(escalaValvula);
+        valvulaEsquerdaCima.setScale(escalaValvula);
 
-
-    player = this.physics.add.sprite(800, 450, 'baixo');
+    //player
+    player = this.physics.add.sprite(this.cameras.main.width * 0.5, this.cameras.main.height *0.5, 'baixo');
     player.setBounce(0.2);
+    let escalaPlayer;
+    if(this.cameras.main.width>=1000){
+        escalaPlayer = 0.035;
+    }
+    else{
+        escalaPlayer = 0.1
+    }
+        const escalaXPlayer = this.cameras.main.width * escalaPlayer/ player.width; 
+    player.setScale(escalaXPlayer);
     player.setCollideWorldBounds(true);
 
-    boat = this.physics.add.image(boatPosition.x, boatPosition.y, 'boat').setOrigin(10, 10);
+    //barco
+    boat = this.physics.add.image(this.cameras.main.width / 2, this.cameras.main.height / 2, 'boat').setOrigin(10, 10);
     boat.setCollideWorldBounds(true);
+    boat.setScale(escalaValvula)
     boat.body.immovable = true;
 
     this.anims.create({ key: 'left', frames: this.anims.generateFrameNumbers('esquerda', { start: 0, end: 20 }), frameRate: 6, repeat: -1 });
@@ -101,7 +141,9 @@ function create() {
     this.anims.create({ key: 'up', frames: this.anims.generateFrameNumbers('cima', { start: 0, end: 20 }), frameRate: 6, repeat: -1 });
     this.anims.create({ key: 'right', frames: this.anims.generateFrameNumbers('direita', { start: 0, end: 20 }), frameRate: 10, repeat: -1 });
 
-    this.physics.add.collider(player, platforms);
+    this.physics.add.collider(player, platform1);
+    this.physics.add.collider(player, platform2);
+    this.physics.add.collider(player, platform3);
     this.physics.add.overlap(player, boat, () => {
         canInteract = true;
     });
@@ -176,6 +218,7 @@ function useItem() {
 }
 
 function showQuestions(question) {
+    
     questionPanel = this.add.rectangle(950, 450, 2000, 400, 0x000fff).setOrigin(0.5, 0.5);
     questionText = this.add.text(950, 370, question.question, { fontSize: '32px', fill: '#fff' }).setOrigin(0.5, 0.5);
     
