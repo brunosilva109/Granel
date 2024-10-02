@@ -41,6 +41,10 @@ let podePerguntarDois = false;
 let podePerguntarUm = false;
 let timer; // Variável para armazenar o temporizador
 let countdownTime = 300; // Tempo em segundos para a contagem regressiva
+let isMovingLeft = false;
+let isMovingRight = false;
+let isMovingUp = false;
+let isMovingDown = false;
 
 const questions = [
     { question: 'Pode misturar dois produtos?', options: ['Sim', 'Não', 'Sempre', 'Às vezes'], answer: 'Não' },
@@ -150,16 +154,15 @@ function create() {
         const upButton = this.add.rectangle(this.cameras.main.width/2, this.cameras.main.height - 125, 50, 50, 0xff0000).setOrigin(0.5, 0.5).setInteractive();
         const downButton = this.add.rectangle(this.cameras.main.width/2, this.cameras.main.height - 25, 50, 50, 0xffff00).setOrigin(0.5, 0.5).setInteractive();
 
-        leftButton.on('pointerdown', () => player.setVelocityX(-100));
-        rightButton.on('pointerdown', () => player.setVelocityX(100));
-        upButton.on('pointerdown', () => player.setVelocityY(-100));
-        downButton.on('pointerdown', () => player.setVelocityY(100));
+        leftButton.on('pointerdown', () => isMovingLeft = true);
+        rightButton.on('pointerdown', () => isMovingRight = true);
+        upButton.on('pointerdown', () => isMovingUp = true);
+        downButton.on('pointerdown', () => isMovingDown = true);
 
-        // Para parar o movimento ao soltar o botão
-        leftButton.on('pointerup', () => player.setVelocityX(0));
-        rightButton.on('pointerup', () => player.setVelocityX(0));
-        upButton.on('pointerup', () => player.setVelocityY(0));
-        downButton.on('pointerup', () => player.setVelocityY(0));
+        leftButton.on('pointerup', () => isMovingLeft = false);
+        rightButton.on('pointerup', () => isMovingRight = false);
+        upButton.on('pointerup', () => isMovingUp = false);
+        downButton.on('pointerup', () => isMovingDown = false);
     }
 }
 
@@ -394,19 +397,19 @@ function update() {
         
     }
 
-    if (cursors.left.isDown && !pararPersonagem && player.x > this.cameras.main.width*0.22) {
+    if ((cursors.left.isDown ||isMovingLeft) && !pararPersonagem && player.x > this.cameras.main.width*0.22) {
         player.setVelocityX(-100);
         player.setVelocityY(0);
         player.anims.play('left', true);
-    } else if (cursors.right.isDown && !pararPersonagem && player.x < this.cameras.main.width*0.78 ) {
+    } else if ((cursors.right.isDown || isMovingRight)&& !pararPersonagem && player.x < this.cameras.main.width*0.78 ) {
         player.setVelocityX(100);
         player.setVelocityY(0);
         player.anims.play('right', true);
-    } else if (cursors.up.isDown && !pararPersonagem && player.y>this.cameras.main.height*0.28) {
+    } else if ((cursors.up.isDown || isMovingUp ) && !pararPersonagem && player.y>this.cameras.main.height*0.28) {
         player.anims.play('up', true);
         player.setVelocityX(0);
         player.setVelocityY(-100);
-    } else if (cursors.down.isDown && !pararPersonagem) {
+    } else if ((cursors.down.isDown || isMovingDown) && !pararPersonagem) {
         player.anims.play('down', true);
         player.setVelocityX(0);
         player.setVelocityY(100);
@@ -415,4 +418,6 @@ function update() {
         player.setVelocityY(0);
         player.anims.play('down');
     }
+    
+    
 }
