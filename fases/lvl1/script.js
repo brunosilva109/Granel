@@ -31,15 +31,16 @@ let boat2;
 let baia1Livre = true;
 let baia2Livre = true;
 let pararPersonagem = false;
-let podePerguntar = false;
 let boatPosition = { x: 800, y: 700 };
-let boatSpeed = 2;
-let boatSpeed2 = 4;
+let boatSpeed = 1;
+let boatSpeed2 = 1;
 let canInteract = false;
 let timerText;
 let spawnBarco = 5;
+let podePerguntarDois = false;
+let podePerguntarUm = false;
 let timer; // Variável para armazenar o temporizador
-let countdownTime = 120; // Tempo em segundos para a contagem regressiva
+let countdownTime = 300; // Tempo em segundos para a contagem regressiva
 
 const questions = [
     { question: 'Pode misturar dois produtos?', options: ['Sim', 'Não', 'Sempre', 'Às vezes'], answer: 'Não' },
@@ -104,7 +105,7 @@ function create() {
         escalaPlayer = 0.035;
     }
     else{
-        escalaPlayer = 0.1
+        escalaPlayer = 0.05
     }
         const escalaXPlayer = this.cameras.main.width * escalaPlayer/ player.width; 
     player.setScale(escalaXPlayer);
@@ -126,13 +127,11 @@ function create() {
     this.anims.create({ key: 'right', frames: this.anims.generateFrameNumbers('direita', { start: 0, end: 20 }), frameRate: 10, repeat: -1 });
 
 
-    this.physics.add.overlap(player, boat, () => {
-        canInteract = true;
-    });
-    this.physics.add.overlap(player, valvulaDireitaCima, useItem, null, this);
-    this.physics.add.overlap(player, valvulaDireitaBaixo, useItem, null, this);
-    this.physics.add.overlap(player, valvulaEsquerdaBaixo, useItem, null, this);
-    this.physics.add.overlap(player, valvulaEsquerdaCima, useItem, null, this);
+
+    this.physics.add.overlap(player, valvulaDireitaCima, useValvulaum, null, this);
+    this.physics.add.overlap(player, valvulaDireitaBaixo, useValvuladois, null, this);
+    this.physics.add.overlap(player, valvulaEsquerdaBaixo, useValvulatres, null, this);
+    this.physics.add.overlap(player, valvulaEsquerdaCima, useValvulaquatro, null, this);
     cursors = this.input.keyboard.createCursorKeys();
 
     // Configurando o texto do temporizador
@@ -145,6 +144,23 @@ function create() {
         callbackScope: this,
         loop: true
     });
+    if (this.cameras.main.width < 1000) {
+        const leftButton = this.add.rectangle((this.cameras.main.width/2)-50, this.cameras.main.height - 75, 50, 50, 0x0000ff).setOrigin(0.5, 0.5).setInteractive();
+        const rightButton = this.add.rectangle((this.cameras.main.width/2)+50, this.cameras.main.height - 75, 50, 50, 0x00ff00).setOrigin(0.5, 0.5).setInteractive();
+        const upButton = this.add.rectangle(this.cameras.main.width/2, this.cameras.main.height - 125, 50, 50, 0xff0000).setOrigin(0.5, 0.5).setInteractive();
+        const downButton = this.add.rectangle(this.cameras.main.width/2, this.cameras.main.height - 25, 50, 50, 0xffff00).setOrigin(0.5, 0.5).setInteractive();
+
+        leftButton.on('pointerdown', () => player.setVelocityX(-100));
+        rightButton.on('pointerdown', () => player.setVelocityX(100));
+        upButton.on('pointerdown', () => player.setVelocityY(-100));
+        downButton.on('pointerdown', () => player.setVelocityY(100));
+
+        // Para parar o movimento ao soltar o botão
+        leftButton.on('pointerup', () => player.setVelocityX(0));
+        rightButton.on('pointerup', () => player.setVelocityX(0));
+        upButton.on('pointerup', () => player.setVelocityY(0));
+        downButton.on('pointerup', () => player.setVelocityY(0));
+    }
 }
 
 function updateTimer() {
@@ -158,11 +174,8 @@ function updateTimer() {
 }
 
 function showTimeExpiredMessage() {
-    const completionPanel = this.add.rectangle(950, 450, 600, 200, 0x000000).setOrigin(0.5, 0.5);
-    const completionText = this.add.text(950, 370, 'Tempo Esgotado!', {
-        fontSize: '32px',
-        fill: '#fff'
-    }).setOrigin(0.5, 0.5);
+    const completionPanel = this.add.rectangle(this.cameras.main.width/2, this.cameras.main.height/2, this.cameras.main.width*0.8, this.cameras.main.height*0.8, 0x000fff).setOrigin(0.5, 0.5);
+    const completionText = this.add.text(this.cameras.main.width/2, this.cameras.main.height/2, `Tempo Esgotado - Total de Acertos: ${score}`, { fontSize: '4vw', fill: '#fff', wordWrap: { width:  this.cameras.main.width* 0.75, useAdvancedWrap: true }}).setOrigin(0.5, 0.5);
     pararPersonagem = true;
     this.time.delayedCall(3000, () => {
         completionPanel.destroy();
@@ -171,12 +184,9 @@ function showTimeExpiredMessage() {
     });
 }
 function showCompletionMessage() {
-    const completionPanel = this.add.rectangle(950, 450, 600, 200, 0x000000).setOrigin(0.5, 0.5);
-    const completionText = this.add.text(950, 370, 'Fase Concluída!', {
-        fontSize: '32px',
-        fill: '#fff'
-    }).setOrigin(0.5, 0.5);
-
+    const completionPanel = this.add.rectangle(this.cameras.main.width/2, this.cameras.main.height/2, this.cameras.main.width*0.8, this.cameras.main.height*0.8, 0x000fff).setOrigin(0.5, 0.5);
+    const completionText = this.add.text(this.cameras.main.width/2, this.cameras.main.height/2, `Fase Concluída - Total de Acertos: ${score}`, { fontSize: '4vw', fill: '#fff', wordWrap: { width:  this.cameras.main.width* 0.75, useAdvancedWrap: true }}).setOrigin(0.5, 0.5);
+   
     // Redireciona após 3 segundos
     this.time.delayedCall(3000, () => {
         completionPanel.destroy();
@@ -186,33 +196,90 @@ function showCompletionMessage() {
     });
 }
 
-function useItem() {
-    if (podePerguntar && !questionPanel) {
+function useValvulaum() {
+    if (podePerguntarUm && !questionPanel) {
         pararPersonagem = true;
         timer.paused = true;
         if (availableQuestions.length > 0) {
             const questionIndex = Math.floor(Math.random() * availableQuestions.length);
             const question = availableQuestions[questionIndex];
             availableQuestions.splice(questionIndex, 1);
-            showQuestions.call(this, question);
+            showQuestions1.call(this, question);
+        } 
+    }
+}
+function useValvuladois() {
+    if (podePerguntarUm && !questionPanel) {
+        pararPersonagem = true;
+        timer.paused = true;
+        if (availableQuestions.length > 0) {
+            const questionIndex = Math.floor(Math.random() * availableQuestions.length);
+            const question = availableQuestions[questionIndex];
+            availableQuestions.splice(questionIndex, 1);
+            showQuestions1.call(this, question);
+        } 
+    }
+}
+function useValvulatres() {
+    if (podePerguntarDois && !questionPanel) {
+        pararPersonagem = true;
+        timer.paused = true;
+        if (availableQuestions.length > 0) {
+            const questionIndex = Math.floor(Math.random() * availableQuestions.length);
+            const question = availableQuestions[questionIndex];
+            availableQuestions.splice(questionIndex, 1);
+            showQuestionsdois.call(this, question);
+        } 
+    }
+}
+function useValvulaquatro() {
+    if (podePerguntarDois && !questionPanel) {
+        pararPersonagem = true;
+        timer.paused = true;
+        if (availableQuestions.length > 0) {
+            const questionIndex = Math.floor(Math.random() * availableQuestions.length);
+            const question = availableQuestions[questionIndex];
+            availableQuestions.splice(questionIndex, 1);
+            showQuestionsdois.call(this, question);
         } 
     }
 }
 
-function showQuestions(question) {
+function showQuestions1(question) {
     
-    questionPanel = this.add.rectangle(950, 450, 2000, 400, 0x000fff).setOrigin(0.5, 0.5);
-    questionText = this.add.text(950, 370, question.question, { fontSize: '32px', fill: '#fff' }).setOrigin(0.5, 0.5);
+    questionPanel = this.add.rectangle(this.cameras.main.width/2, this.cameras.main.height/2, this.cameras.main.width*0.8, this.cameras.main.height*0.8, 0x000fff).setOrigin(0.5, 0.5);
+    questionText = this.add.text(this.cameras.main.width/2, this.cameras.main.height*0.2, question.question, { fontSize: '3vw', fill: '#fff', wordWrap: { width:  this.cameras.main.width* 0.75, useAdvancedWrap: true }}).setOrigin(0.5, 0.5);
     
     optionTexts = question.options.map((option, index) => {
-        const text = this.add.text(950, 420 + index * 50, option, { fontSize: '24px', fill: '#fff' }).setOrigin(0.5, 0.5);
+        const text = this.add.text(this.cameras.main.width/2, this.cameras.main.height*0.5 + index * 50, option, { fontSize: '3vw', fill: '#fff'}).setOrigin(0.5, 0.5);
         
         text.setInteractive();
         text.on('pointerdown', () => {
             checkAnswer.call(this, option, question.answer);
             hideQuestions.call(this);
-            boatSpeed = 2;
+            boatSpeed = 1;
             boat.x += boatSpeed;
+            timer.paused = false;
+            contador = contador-1;
+        });
+
+        return text;
+    });
+} 
+function showQuestionsdois(question) {
+    
+    questionPanel = this.add.rectangle(this.cameras.main.width/2, this.cameras.main.height/2, this.cameras.main.width*0.8, this.cameras.main.height*0.8, 0x000fff).setOrigin(0.5, 0.5);
+    questionText = this.add.text(this.cameras.main.width/2, this.cameras.main.height*0.2, question.question, { fontSize: '3vw', fill: '#fff', wordWrap: { width:  this.cameras.main.width* 0.75, useAdvancedWrap: true }}).setOrigin(0.5, 0.5);
+    
+    optionTexts = question.options.map((option, index) => {
+        const text = this.add.text(this.cameras.main.width/2, this.cameras.main.height*0.5 + index * 50, option, { fontSize: '3vw', fill: '#fff'}).setOrigin(0.5, 0.5);
+        
+        text.setInteractive();
+        text.on('pointerdown', () => {
+            checkAnswer.call(this, option, question.answer);
+            hideQuestionsdois.call(this);
+            boatSpeed2 = 1;
+            boat2.x += boatSpeed2;
             timer.paused = false;
             contador = contador-1;
         });
@@ -232,12 +299,27 @@ function hideQuestions() {
     }
     optionTexts.forEach(text => text.destroy());
     optionTexts = [];
-    boatSpeed = 2;
+    boatSpeed = 1;
     pararPersonagem = false;
     boat.x += boatSpeed;
-    podePerguntar = false;
+    podePerguntarUm = false;
 }
-
+function hideQuestionsdois() {
+    if (questionPanel) {
+        questionPanel.destroy();
+        questionPanel = null;
+    }
+    if (questionText) {
+        questionText.destroy();
+        questionText = null;
+    }
+    optionTexts.forEach(text => text.destroy());
+    optionTexts = [];
+    boatSpeed2 = 1;
+    pararPersonagem = false;
+    boat2.x += boatSpeed2;
+    podePerguntarDois = false;
+}
 function checkAnswer(selected, correctAnswer) {
     if (selected === correctAnswer) {
         score++;
@@ -284,35 +366,26 @@ function update() {
     if (boat) {
         boat.x += boatSpeed;
         boat2.x += boatSpeed2;
-        if (boat.x == this.cameras.main.width*0.25 && this.cameras.main.width>1000) {
+        if (boat.x == Math.floor(this.cameras.main.width*0.25) ) {
             boatSpeed = 0;
             boat.x += boatSpeed;
             baia1Livre == false;
-            podePerguntar = true;
+            podePerguntarUm = true;
         }
-        if (boat.x == this.cameras.main.width*0.2 && this.cameras.main.width<1000) {
-            boatSpeed = 0;
-            boat.x += boatSpeed;
-            baia1Livre == false;
-            podePerguntar = true;
-        }
-        if (boat2.x == this.cameras.main.width*0.75 && this.cameras.main.width>1000 ) {
+        
+        if (boat2.x == Math.floor(this.cameras.main.width*0.75) ) {
             boatSpeed2 = 0;
             boat2.x += boatSpeed;
-            podePerguntar = true;
+            podePerguntarDois = true;
         }
-        if (boat2.x == this.cameras.main.width*0.7 && this.cameras.main.width<1000) {
-            boatSpeed2 = 0;
-            boat2.x += boatSpeed;
-            podePerguntar = true;
-        }
-        if (boat.x == this.cameras.main.width*0.9) {
+        
+        if (boat.x == Math.floor(this.cameras.main.width*0.9)) {
             boat.destroy(); 
             if (availableQuestions.length > 0) {
                 createNewBoat.call(this); 
             }
         }
-        if (boat2.x == this.cameras.main.width*0.9) {
+        if (boat2.x == Math.floor(this.cameras.main.width*0.9)) {
             boat2.destroy(); 
             if (availableQuestions.length > 0) {
                 createNewBoat2.call(this); 
@@ -322,21 +395,21 @@ function update() {
     }
 
     if (cursors.left.isDown && !pararPersonagem && player.x > this.cameras.main.width*0.22) {
-        player.setVelocityX(-160);
+        player.setVelocityX(-100);
         player.setVelocityY(0);
         player.anims.play('left', true);
     } else if (cursors.right.isDown && !pararPersonagem && player.x < this.cameras.main.width*0.78 ) {
-        player.setVelocityX(160);
+        player.setVelocityX(100);
         player.setVelocityY(0);
         player.anims.play('right', true);
     } else if (cursors.up.isDown && !pararPersonagem && player.y>this.cameras.main.height*0.28) {
         player.anims.play('up', true);
         player.setVelocityX(0);
-        player.setVelocityY(-160);
+        player.setVelocityY(-100);
     } else if (cursors.down.isDown && !pararPersonagem) {
         player.anims.play('down', true);
         player.setVelocityX(0);
-        player.setVelocityY(160);
+        player.setVelocityY(100);
     } else {
         player.setVelocityX(0);
         player.setVelocityY(0);
