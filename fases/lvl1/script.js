@@ -251,10 +251,10 @@ function useValvulaquatro() {
 function showQuestions1(question) {
     
     questionPanel = this.add.rectangle(this.cameras.main.width/2, this.cameras.main.height/2, this.cameras.main.width*0.8, this.cameras.main.height*0.8, 0x000fff).setOrigin(0.5, 0.5);
-    questionText = this.add.text(this.cameras.main.width/2, this.cameras.main.height*0.2, question.question, { fontSize: '3vw', fill: '#fff', wordWrap: { width:  this.cameras.main.width* 0.75, useAdvancedWrap: true }}).setOrigin(0.5, 0.5);
+    questionText = this.add.text(this.cameras.main.width/2, this.cameras.main.height*0.2, question.question, { fontSize: '5vw', fill: '#fff', wordWrap: { width:  this.cameras.main.width* 0.75, useAdvancedWrap: true }}).setOrigin(0.5, 0.5);
     
     optionTexts = question.options.map((option, index) => {
-        const text = this.add.text(this.cameras.main.width/2, this.cameras.main.height*0.5 + index * 50, option, { fontSize: '3vw', fill: '#fff'}).setOrigin(0.5, 0.5);
+        const text = this.add.text(this.cameras.main.width/2, this.cameras.main.height*0.5 + index * 50, option, { fontSize: '5vw', fill: '#fff'}).setOrigin(0.5, 0.5);
         
         text.setInteractive();
         text.on('pointerdown', () => {
@@ -272,10 +272,10 @@ function showQuestions1(question) {
 function showQuestionsdois(question) {
     
     questionPanel = this.add.rectangle(this.cameras.main.width/2, this.cameras.main.height/2, this.cameras.main.width*0.8, this.cameras.main.height*0.8, 0x000fff).setOrigin(0.5, 0.5);
-    questionText = this.add.text(this.cameras.main.width/2, this.cameras.main.height*0.2, question.question, { fontSize: '3vw', fill: '#fff', wordWrap: { width:  this.cameras.main.width* 0.75, useAdvancedWrap: true }}).setOrigin(0.5, 0.5);
+    questionText = this.add.text(this.cameras.main.width/2, this.cameras.main.height*0.2, question.question, { fontSize: '5vw', fill: '#fff', wordWrap: { width:  this.cameras.main.width* 0.75, useAdvancedWrap: true }}).setOrigin(0.5, 0.5);
     
     optionTexts = question.options.map((option, index) => {
-        const text = this.add.text(this.cameras.main.width/2, this.cameras.main.height*0.5 + index * 50, option, { fontSize: '3vw', fill: '#fff'}).setOrigin(0.5, 0.5);
+        const text = this.add.text(this.cameras.main.width/2, this.cameras.main.height*0.5 + index * 50, option, { fontSize: '5vw', fill: '#fff'}).setOrigin(0.5, 0.5);
         
         text.setInteractive();
         text.on('pointerdown', () => {
