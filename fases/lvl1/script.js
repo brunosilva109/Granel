@@ -149,10 +149,10 @@ function create() {
         loop: true
     });
     if (this.cameras.main.width < 1000) {
-        const leftButton = this.add.rectangle((this.cameras.main.width/2)-50, this.cameras.main.height - 75, 50, 50, 0x0000ff).setOrigin(0.5, 0.5).setInteractive();
-        const rightButton = this.add.rectangle((this.cameras.main.width/2)+50, this.cameras.main.height - 75, 50, 50, 0x00ff00).setOrigin(0.5, 0.5).setInteractive();
-        const upButton = this.add.rectangle(this.cameras.main.width/2, this.cameras.main.height - 125, 50, 50, 0xff0000).setOrigin(0.5, 0.5).setInteractive();
-        const downButton = this.add.rectangle(this.cameras.main.width/2, this.cameras.main.height - 25, 50, 50, 0xffff00).setOrigin(0.5, 0.5).setInteractive();
+        const leftButton = this.add.rectangle((this.cameras.main.width/2)-50, this.cameras.main.height - 125, 50, 50, 0x0000ff).setOrigin(0.5, 0.5).setInteractive();
+        const rightButton = this.add.rectangle((this.cameras.main.width/2)+50, this.cameras.main.height - 125, 50, 50, 0x00ff00).setOrigin(0.5, 0.5).setInteractive();
+        const upButton = this.add.rectangle(this.cameras.main.width/2, this.cameras.main.height - 150, 50, 50, 0xff0000).setOrigin(0.5, 0.5).setInteractive();
+        const downButton = this.add.rectangle(this.cameras.main.width/2, this.cameras.main.height - 75, 50, 50, 0xffff00).setOrigin(0.5, 0.5).setInteractive();
 
         leftButton.on('pointerdown', () => isMovingLeft = true);
         rightButton.on('pointerdown', () => isMovingRight = true);
