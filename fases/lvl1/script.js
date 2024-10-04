@@ -46,6 +46,22 @@ let isMovingRight = false;
 let isMovingUp = false;
 let isMovingDown = false;
 
+let valvulaDireitaCimaHabilitada = false;
+let valvulaDireitaBaixoHabilitada = false;
+let valvulaEsquerdaCimaHabilitada = false;
+let valvulaEsquerdaBaixoHabilitada = false;
+let valvulaDireitaCimaEmUso= false;
+let valvulaDireitaBaixoEmUso = false;
+let valvulaEsquerdaCimaEmUso = false;
+let valvulaEsquerdaBaixoEmUso = false;
+let trocou = false;
+
+let valvulaDireitaCima;
+let valvulaDireitaBaixo;
+let valvulaEsquerdaCima;
+let valvulaEsquerdaBaixo;
+let escalaValvula;
+
 const questions = [
     { question: 'Pode misturar dois produtos?', options: ['Sim', 'Não', 'Sempre', 'Às vezes'], answer: 'Não' },
     { question: 'Pode andar sem EPI na área?', options: ['Sim', 'Não', 'Sempre', 'Às vezes'], answer: 'Não' },
@@ -68,9 +84,12 @@ let availableQuestions = [...questions];
 let contador = availableQuestions.length;
 
 function preload() {
-    this.load.image('item', 'https://raw.githubusercontent.com/brunosilva109/Granel/refs/heads/main/img/valvula.png');
+    this.load.image('item', 'https://raw.githubusercontent.com/brunosilva109/Granel/refs/heads/main/img/valvulas/valvula.png');
+    this.load.image('itemHabilitado', 'https://raw.githubusercontent.com/brunosilva109/Granel/refs/heads/main/img/valvulas/valvulaHabilitada.png');
+    this.load.image('itemEmUso', 'https://raw.githubusercontent.com/brunosilva109/Granel/refs/heads/main/img/valvulas/valvulaEmUso.png');
     this.load.image('sky', 'https://raw.githubusercontent.com/brunosilva109/Granel/main/img/MAPA.png');
-    this.load.image('boat', 'https://raw.githubusercontent.com/brunosilva109/Granel/refs/heads/main/img/NAVIO.png');
+    this.load.image('boat', 'https://raw.githubusercontent.com/brunosilva109/Granel/refs/heads/main/img/navio/NAVIO.png');
+    this.load.image('boat2', 'https://raw.githubusercontent.com/brunosilva109/Granel/refs/heads/main/img/navio/NavioBaiaDois.png');
     this.load.spritesheet('esquerda', 'https://raw.githubusercontent.com/brunosilva109/Granel/main/img/personagem/esquerda.png', { frameWidth: 58, frameHeight: 65 });
     this.load.spritesheet('direita', 'https://raw.githubusercontent.com/brunosilva109/Granel/main/img/personagem/direita.png', { frameWidth: 59, frameHeight: 65 });
     this.load.spritesheet('cima', 'https://raw.githubusercontent.com/brunosilva109/Granel/main/img/personagem/costas.png', { frameWidth: 58, frameHeight: 65 });
@@ -84,11 +103,11 @@ function create() {
     
 
     // valvulas
-    let valvulaDireitaCima = this.physics.add.sprite(this.cameras.main.width * 0.2, this.cameras.main.height * 0.55, 'item');
-    let valvulaDireitaBaixo = this.physics.add.sprite(this.cameras.main.width * 0.2, this.cameras.main.height * 0.9, 'item');
-    let valvulaEsquerdaCima = this.physics.add.sprite(this.cameras.main.width * 0.8, this.cameras.main.height * 0.55, 'item');
-    let valvulaEsquerdaBaixo = this.physics.add.sprite(this.cameras.main.width * 0.8, this.cameras.main.height * 0.9, 'item');
-    let escalaValvula;
+    valvulaDireitaCima = this.physics.add.sprite(this.cameras.main.width * 0.2, this.cameras.main.height * 0.555, 'item');
+    valvulaDireitaBaixo = this.physics.add.sprite(this.cameras.main.width * 0.2, this.cameras.main.height * 0.893, 'item');
+    valvulaEsquerdaCima = this.physics.add.sprite(this.cameras.main.width * 0.8, this.cameras.main.height * 0.555, 'item');
+    valvulaEsquerdaBaixo = this.physics.add.sprite(this.cameras.main.width * 0.8, this.cameras.main.height * 0.893, 'item');
+    
     if(this.cameras.main.width>=1000){
         escalaValvula = 1;
     }
@@ -120,7 +139,7 @@ function create() {
     boat.setCollideWorldBounds(true);
     boat.setScale(escalaValvula);
     boat.body.immovable = true;
-    boat2 = this.physics.add.image(0, 0, 'boat');
+    boat2 = this.physics.add.image(0, 0, 'boat2');
     boat2.setCollideWorldBounds(true);
     boat2.setScale(escalaValvula);
     boat2.body.immovable = true;
@@ -164,6 +183,44 @@ function create() {
         upButton.on('pointerup', () => isMovingUp = false);
         downButton.on('pointerup', () => isMovingDown = false);
     }
+}
+
+function trocarValvula(){
+    
+    if( valvulaDireitaBaixoHabilitada == false && valvulaDireitaCimaEmUso == false && valvulaDireitaCimaHabilitada == false && valvulaDireitaBaixoEmUso == false ){
+        let numero = Math.floor(Math.random()*2);
+        console.log('Acertou! Total de acertos:', numero);
+        switch(numero){
+            case 0:
+                valvulaDireitaCimaHabilitada = true;
+                break;
+            case 1:
+                valvulaDireitaBaixoHabilitada = true;
+                break;
+        }
+    }
+    
+    if(valvulaDireitaCimaHabilitada == true){
+        valvulaDireitaCima.destroy();
+        valvulaDireitaCima = this.physics.add.sprite(this.cameras.main.width * 0.2, this.cameras.main.height * 0.555, 'itemHabilitado');
+        trocou = true;
+    }
+    if(valvulaDireitaCimaEmUso == true){
+        valvulaDireitaCima.destroy();
+        valvulaDireitaCima = this.physics.add.sprite(this.cameras.main.width * 0.2, this.cameras.main.height * 0.555, 'itemEmUso');
+        trocou = true;
+    }
+    if(valvulaDireitaBaixoHabilitada == true){
+        valvulaDireitaBaixo.destroy();
+        valvulaDireitaBaixo = this.physics.add.sprite(this.cameras.main.width * 0.2, this.cameras.main.height * 0.893, 'itemHabilitado');
+        trocou = true;
+    }
+    if(valvulaDireitaBaixoEmUso == true){
+        valvulaDireitaBaixo.destroy();
+        valvulaDireitaBaixo = this.physics.add.sprite(this.cameras.main.width * 0.2, this.cameras.main.height * 0.893, 'itemEmUso');
+        trocou = true;
+    }
+    
 }
 
 function updateTimer() {
@@ -260,6 +317,18 @@ function showQuestions1(question) {
         text.on('pointerdown', () => {
             checkAnswer.call(this, option, question.answer);
             hideQuestions.call(this);
+            if(valvulaDireitaCimaHabilitada ==true){
+                valvulaDireitaCimaEmUso = true;
+                valvulaDireitaCimaHabilitada= false;
+            }
+            else{
+                valvulaDireitaBaixoEmUso = true;
+                valvulaDireitaBaixoHabilitada = false;
+            }
+            
+            if(trocou == false){
+                trocarValvula.call(this);  
+              }
             boatSpeed = 1;
             boat.x += boatSpeed;
             timer.paused = false;
@@ -348,7 +417,7 @@ function createNewBoat() {
     canInteract = false;
 }
 function createNewBoat2() {
-    boat2 = this.physics.add.image(0, 0, 'boat');
+    boat2 = this.physics.add.image(0, 0, 'boat2');
     boat2.setCollideWorldBounds(true);
     boat2.body.immovable = true;
     let escalaBarco;
@@ -374,12 +443,17 @@ function update() {
             boat.x += boatSpeed;
             baia1Livre == false;
             podePerguntarUm = true;
+            if(trocou == false){
+              trocarValvula.call(this);  
+            }
+            
         }
         
         if (boat2.x == Math.floor(this.cameras.main.width*0.75) ) {
             boatSpeed2 = 0;
             boat2.x += boatSpeed;
             podePerguntarDois = true;
+            trocarValvula.call(this);
         }
         
         if (boat.x == Math.floor(this.cameras.main.width*0.9)) {
