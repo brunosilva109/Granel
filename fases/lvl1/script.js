@@ -18,50 +18,46 @@ const config = {
 
 // Inicializando o jogo
 const game = new Phaser.Game(config);
-
 let player;
 let cursors;
-
 let questionPanel;
 let questionText;
 let optionTexts = [];
 let score = 0;
 let boat;
 let boat2;
-let baia1Livre = true;
-let baia2Livre = true;
 let pararPersonagem = false;
 let boatPosition = { x: 800, y: 700 };
 let boatSpeed = 1;
 let boatSpeed2 = 1;
 let canInteract = false;
 let timerText;
-let spawnBarco = 5;
-let podePerguntarDois = false;
-let podePerguntarUm = false;
 let timer; // Variável para armazenar o temporizador
-let countdownTime = 300; // Tempo em segundos para a contagem regressiva
+let countdownTime = 600; // Tempo em segundos para a contagem regressiva
 let isMovingLeft = false;
 let isMovingRight = false;
 let isMovingUp = false;
 let isMovingDown = false;
-
 let valvulaDireitaCimaHabilitada = false;
 let valvulaDireitaBaixoHabilitada = false;
 let valvulaEsquerdaCimaHabilitada = false;
 let valvulaEsquerdaBaixoHabilitada = false;
-let valvulaDireitaCimaEmUso= false;
+let valvulaDireitaCimaEmUso = false;
 let valvulaDireitaBaixoEmUso = false;
 let valvulaEsquerdaCimaEmUso = false;
 let valvulaEsquerdaBaixoEmUso = false;
 let trocou = false;
-
+let trocouDois = false;
 let valvulaDireitaCima;
 let valvulaDireitaBaixo;
 let valvulaEsquerdaCima;
 let valvulaEsquerdaBaixo;
+let valvulaDireitaCimaAux;
+let valvulaDireitaBaixoAux;
+let valvulaEsquerdaCimaAux;
+let valvulaEsquerdaBaixoAux;
 let escalaValvula;
-
+let auxTimer1, auxTimer2;
 const questions = [
     { question: 'Pode misturar dois produtos?', options: ['Sim', 'Não', 'Sempre', 'Às vezes'], answer: 'Não' },
     { question: 'Pode andar sem EPI na área?', options: ['Sim', 'Não', 'Sempre', 'Às vezes'], answer: 'Não' },
@@ -98,39 +94,39 @@ function preload() {
 
 function create() {
     let background = this.add.image(0, 0, 'sky').setScale(this.sys.game.device.pixelRatio);
-   background.setOrigin(0, 0);
-   background.setScale(this.cameras.main.width*0.00052,this.cameras.main.height * 0.001112 );
-    
+    background.setOrigin(0, 0);
+    background.setScale(this.cameras.main.width * 0.00052, this.cameras.main.height * 0.001112);
+
 
     // valvulas
     valvulaDireitaCima = this.physics.add.sprite(this.cameras.main.width * 0.2, this.cameras.main.height * 0.555, 'item');
     valvulaDireitaBaixo = this.physics.add.sprite(this.cameras.main.width * 0.2, this.cameras.main.height * 0.893, 'item');
     valvulaEsquerdaCima = this.physics.add.sprite(this.cameras.main.width * 0.8, this.cameras.main.height * 0.555, 'item');
     valvulaEsquerdaBaixo = this.physics.add.sprite(this.cameras.main.width * 0.8, this.cameras.main.height * 0.893, 'item');
-    
-    if(this.cameras.main.width>=1000){
+
+    if (this.cameras.main.width >= 1000) {
         escalaValvula = 1;
     }
-    else{
+    else {
         escalaValvula = 0.5
     }
-        
-        valvulaDireitaBaixo.setScale(escalaValvula);
-        valvulaDireitaCima.setScale(escalaValvula);
-        valvulaEsquerdaBaixo.setScale(escalaValvula);
-        valvulaEsquerdaCima.setScale(escalaValvula);
+
+    valvulaDireitaBaixo.setScale(escalaValvula);
+    valvulaDireitaCima.setScale(escalaValvula);
+    valvulaEsquerdaBaixo.setScale(escalaValvula);
+    valvulaEsquerdaCima.setScale(escalaValvula);
 
     //player
-    player = this.physics.add.sprite(this.cameras.main.width * 0.4, this.cameras.main.height *0.4, 'baixo');
+    player = this.physics.add.sprite(this.cameras.main.width * 0.4, this.cameras.main.height * 0.4, 'baixo');
     player.setBounce(0.2);
     let escalaPlayer;
-    if(this.cameras.main.width>=1000){
+    if (this.cameras.main.width >= 1000) {
         escalaPlayer = 0.035;
     }
-    else{
+    else {
         escalaPlayer = 0.05
     }
-        const escalaXPlayer = this.cameras.main.width * escalaPlayer/ player.width; 
+    const escalaXPlayer = this.cameras.main.width * escalaPlayer / player.width;
     player.setScale(escalaXPlayer);
     player.setCollideWorldBounds(true);
 
@@ -168,10 +164,10 @@ function create() {
         loop: true
     });
     if (this.cameras.main.width < 1000) {
-        const leftButton = this.add.rectangle((this.cameras.main.width/2)-50, this.cameras.main.height - 125, 50, 50, 0x0000ff).setOrigin(0.5, 0.5).setInteractive();
-        const rightButton = this.add.rectangle((this.cameras.main.width/2)+50, this.cameras.main.height - 125, 50, 50, 0x00ff00).setOrigin(0.5, 0.5).setInteractive();
-        const upButton = this.add.rectangle(this.cameras.main.width/2, this.cameras.main.height - 175, 50, 50, 0xff0000).setOrigin(0.5, 0.5).setInteractive();
-        const downButton = this.add.rectangle(this.cameras.main.width/2, this.cameras.main.height - 75, 50, 50, 0xffff00).setOrigin(0.5, 0.5).setInteractive();
+        const leftButton = this.add.rectangle((this.cameras.main.width / 2) - 50, this.cameras.main.height - 125, 50, 50, 0x0000ff).setOrigin(0.5, 0.5).setInteractive();
+        const rightButton = this.add.rectangle((this.cameras.main.width / 2) + 50, this.cameras.main.height - 125, 50, 50, 0x00ff00).setOrigin(0.5, 0.5).setInteractive();
+        const upButton = this.add.rectangle(this.cameras.main.width / 2, this.cameras.main.height - 175, 50, 50, 0xff0000).setOrigin(0.5, 0.5).setInteractive();
+        const downButton = this.add.rectangle(this.cameras.main.width / 2, this.cameras.main.height - 75, 50, 50, 0xffff00).setOrigin(0.5, 0.5).setInteractive();
 
         leftButton.on('pointerdown', () => isMovingLeft = true);
         rightButton.on('pointerdown', () => isMovingRight = true);
@@ -185,12 +181,12 @@ function create() {
     }
 }
 
-function trocarValvula(){
-    
-    if( valvulaDireitaBaixoHabilitada == false && valvulaDireitaCimaEmUso == false && valvulaDireitaCimaHabilitada == false && valvulaDireitaBaixoEmUso == false ){
-        let numero = Math.floor(Math.random()*2);
+function trocarValvula() {
+
+    if (valvulaDireitaBaixoHabilitada == false && valvulaDireitaCimaEmUso == false && valvulaDireitaCimaHabilitada == false && valvulaDireitaBaixoEmUso == false) {
+        let numero = Math.floor(Math.random() * 2);
         console.log('Acertou! Total de acertos:', numero);
-        switch(numero){
+        switch (numero) {
             case 0:
                 valvulaDireitaCimaHabilitada = true;
                 break;
@@ -199,28 +195,71 @@ function trocarValvula(){
                 break;
         }
     }
-    
-    if(valvulaDireitaCimaHabilitada == true){
-        valvulaDireitaCima.destroy();
-        valvulaDireitaCima = this.physics.add.sprite(this.cameras.main.width * 0.2, this.cameras.main.height * 0.555, 'itemHabilitado');
+
+    if (valvulaDireitaCimaHabilitada == true) {
+        valvulaDireitaCimaAux = this.physics.add.sprite(this.cameras.main.width * 0.2, this.cameras.main.height * 0.555, 'itemHabilitado');
+        valvulaDireitaCimaAux.setScale(escalaValvula);
         trocou = true;
     }
-    if(valvulaDireitaCimaEmUso == true){
-        valvulaDireitaCima.destroy();
-        valvulaDireitaCima = this.physics.add.sprite(this.cameras.main.width * 0.2, this.cameras.main.height * 0.555, 'itemEmUso');
+    if (valvulaDireitaCimaEmUso == true) {
+        valvulaDireitaCimaAux.destroy();
+        valvulaDireitaCimaAux = this.physics.add.sprite(this.cameras.main.width * 0.2, this.cameras.main.height * 0.555, 'itemEmUso');
+        valvulaDireitaCimaAux.setScale(escalaValvula);
         trocou = true;
     }
-    if(valvulaDireitaBaixoHabilitada == true){
-        valvulaDireitaBaixo.destroy();
-        valvulaDireitaBaixo = this.physics.add.sprite(this.cameras.main.width * 0.2, this.cameras.main.height * 0.893, 'itemHabilitado');
+    if (valvulaDireitaBaixoHabilitada == true) {
+
+        valvulaDireitaBaixoAux = this.physics.add.sprite(this.cameras.main.width * 0.2, this.cameras.main.height * 0.893, 'itemHabilitado');
+        valvulaDireitaBaixoAux.setScale(escalaValvula);
         trocou = true;
     }
-    if(valvulaDireitaBaixoEmUso == true){
-        valvulaDireitaBaixo.destroy();
-        valvulaDireitaBaixo = this.physics.add.sprite(this.cameras.main.width * 0.2, this.cameras.main.height * 0.893, 'itemEmUso');
+    if (valvulaDireitaBaixoEmUso == true) {
+        valvulaDireitaBaixoAux.destroy();
+        valvulaDireitaBaixoAux = this.physics.add.sprite(this.cameras.main.width * 0.2, this.cameras.main.height * 0.893, 'itemEmUso');
+        valvulaDireitaBaixoAux.setScale(escalaValvula);
         trocou = true;
     }
-    
+
+}
+function trocarValvuladois() {
+
+    if (valvulaEsquerdaBaixoHabilitada == false && valvulaEsquerdaCimaEmUso == false && valvulaEsquerdaCimaHabilitada == false && valvulaEsquerdaBaixoEmUso == false) {
+        let numero = Math.floor(Math.random() * 2);
+        console.log('Acertou! Total de acertos:', numero);
+        switch (numero) {
+            case 0:
+                valvulaEsquerdaCimaHabilitada = true;
+                break;
+            case 1:
+                valvulaEsquerdaBaixoHabilitada = true;
+                break;
+        }
+    }
+
+    if (valvulaEsquerdaCimaHabilitada == true) {
+        valvulaEsquerdaCimaAux = this.physics.add.sprite(this.cameras.main.width * 0.8, this.cameras.main.height * 0.893, 'itemHabilitado');
+        valvulaEsquerdaCimaAux.setScale(escalaValvula);
+        trocouDois = true;
+    }
+    if (valvulaEsquerdaCimaEmUso == true) {
+        valvulaEsquerdaCimaAux.destroy();
+        valvulaEsquerdaCimaAux = this.physics.add.sprite(this.cameras.main.width * 0.8, this.cameras.main.height * 0.893, 'itemEmUso');
+        valvulaEsquerdaCimaAux.setScale(escalaValvula);
+        trocouDois = true;
+    }
+    if (valvulaEsquerdaBaixoHabilitada == true) {
+
+        valvulaEsquerdaBaixoAux = this.physics.add.sprite(this.cameras.main.width * 0.8, this.cameras.main.height * 0.555, 'itemHabilitado');
+        valvulaEsquerdaBaixoAux.setScale(escalaValvula);
+        trocouDois = true;
+    }
+    if (valvulaEsquerdaBaixoEmUso == true) {
+        valvulaEsquerdaBaixoAux.destroy();
+        valvulaEsquerdaBaixoAux = this.physics.add.sprite(this.cameras.main.width * 0.8, this.cameras.main.height * 0.555, 'itemEmUso');
+        valvulaEsquerdaBaixoAux.setScale(escalaValvula);
+        trocouDois = true;
+    }
+
 }
 
 function updateTimer() {
@@ -233,127 +272,106 @@ function updateTimer() {
     }
 }
 
+
 function showTimeExpiredMessage() {
-    const completionPanel = this.add.rectangle(this.cameras.main.width/2, this.cameras.main.height/2, this.cameras.main.width*0.8, this.cameras.main.height*0.8, 0x000fff).setOrigin(0.5, 0.5);
-    const completionText = this.add.text(this.cameras.main.width/2, this.cameras.main.height/2, `Tempo Esgotado - Total de Acertos: ${score}`, { fontSize: '4vw', fill: '#fff', wordWrap: { width:  this.cameras.main.width* 0.75, useAdvancedWrap: true }}).setOrigin(0.5, 0.5);
+    const completionPanel = this.add.rectangle(this.cameras.main.width / 2, this.cameras.main.height / 2, this.cameras.main.width * 0.8, this.cameras.main.height * 0.8, 0x000fff).setOrigin(0.5, 0.5);
+    const completionText = this.add.text(this.cameras.main.width / 2, this.cameras.main.height / 2, `Tempo Esgotado - Total de Acertos: ${score}`, { fontSize: '4vw', fill: '#fff', wordWrap: { width: this.cameras.main.width * 0.75, useAdvancedWrap: true } }).setOrigin(0.5, 0.5);
     pararPersonagem = true;
     this.time.delayedCall(3000, () => {
         completionPanel.destroy();
         completionText.destroy();
-        window.location.href = '../../fase.html'; 
+        window.location.href = '../../fase.html';
     });
 }
 function showCompletionMessage() {
-    const completionPanel = this.add.rectangle(this.cameras.main.width/2, this.cameras.main.height/2, this.cameras.main.width*0.8, this.cameras.main.height*0.8, 0x000fff).setOrigin(0.5, 0.5);
-    const completionText = this.add.text(this.cameras.main.width/2, this.cameras.main.height/2, `Fase Concluída - Total de Acertos: ${score}`, { fontSize: '4vw', fill: '#fff', wordWrap: { width:  this.cameras.main.width* 0.75, useAdvancedWrap: true }}).setOrigin(0.5, 0.5);
-   
+    const completionPanel = this.add.rectangle(this.cameras.main.width / 2, this.cameras.main.height / 2, this.cameras.main.width * 0.8, this.cameras.main.height * 0.8, 0x000fff).setOrigin(0.5, 0.5);
+    const completionText = this.add.text(this.cameras.main.width / 2, this.cameras.main.height / 2, `Fase Concluída - Total de Acertos: ${score}`, { fontSize: '4vw', fill: '#fff', wordWrap: { width: this.cameras.main.width * 0.75, useAdvancedWrap: true } }).setOrigin(0.5, 0.5);
+
     // Redireciona após 3 segundos
     this.time.delayedCall(3000, () => {
         completionPanel.destroy();
         completionText.destroy();
 
-        window.location.href = '../../fase.html'; 
+        window.location.href = '../../fase.html';
     });
 }
 
 function useValvulaum() {
-    if (podePerguntarUm && !questionPanel) {
+    if (valvulaDireitaCimaHabilitada && !questionPanel) {
         pararPersonagem = true;
-        timer.paused = true;
         if (availableQuestions.length > 0) {
             const questionIndex = Math.floor(Math.random() * availableQuestions.length);
             const question = availableQuestions[questionIndex];
             availableQuestions.splice(questionIndex, 1);
             showQuestions1.call(this, question);
-        } 
+        }
     }
 }
 function useValvuladois() {
-    if (podePerguntarUm && !questionPanel) {
+    if (valvulaDireitaBaixoHabilitada && !questionPanel) {
         pararPersonagem = true;
-        timer.paused = true;
         if (availableQuestions.length > 0) {
             const questionIndex = Math.floor(Math.random() * availableQuestions.length);
             const question = availableQuestions[questionIndex];
             availableQuestions.splice(questionIndex, 1);
             showQuestions1.call(this, question);
-        } 
+        }
     }
 }
 function useValvulatres() {
-    if (podePerguntarDois && !questionPanel) {
+    if (valvulaEsquerdaCimaHabilitada && !questionPanel) {
         pararPersonagem = true;
-        timer.paused = true;
         if (availableQuestions.length > 0) {
             const questionIndex = Math.floor(Math.random() * availableQuestions.length);
             const question = availableQuestions[questionIndex];
             availableQuestions.splice(questionIndex, 1);
             showQuestionsdois.call(this, question);
-        } 
+        }
     }
 }
 function useValvulaquatro() {
-    if (podePerguntarDois && !questionPanel) {
+    if (valvulaEsquerdaBaixoHabilitada && !questionPanel) {
         pararPersonagem = true;
-        timer.paused = true;
         if (availableQuestions.length > 0) {
             const questionIndex = Math.floor(Math.random() * availableQuestions.length);
             const question = availableQuestions[questionIndex];
             availableQuestions.splice(questionIndex, 1);
             showQuestionsdois.call(this, question);
-        } 
+        }
     }
 }
 
 function showQuestions1(question) {
-    
-    questionPanel = this.add.rectangle(this.cameras.main.width/2, this.cameras.main.height/2, this.cameras.main.width*0.8, this.cameras.main.height*0.8, 0x000fff).setOrigin(0.5, 0.5);
-    questionText = this.add.text(this.cameras.main.width/2, this.cameras.main.height*0.2, question.question, { fontSize: '5vw', fill: '#fff', wordWrap: { width:  this.cameras.main.width* 0.75, useAdvancedWrap: true }}).setOrigin(0.5, 0.5);
-    
+
+    questionPanel = this.add.rectangle(this.cameras.main.width / 2, this.cameras.main.height / 2, this.cameras.main.width * 0.8, this.cameras.main.height * 0.8, 0x000fff).setOrigin(0.5, 0.5);
+    questionText = this.add.text(this.cameras.main.width / 2, this.cameras.main.height * 0.2, question.question, { fontSize: '5vw', fill: '#fff', wordWrap: { width: this.cameras.main.width * 0.75, useAdvancedWrap: true } }).setOrigin(0.5, 0.5);
+
     optionTexts = question.options.map((option, index) => {
-        const text = this.add.text(this.cameras.main.width/2, this.cameras.main.height*0.5 + index * 50, option, { fontSize: '5vw', fill: '#fff'}).setOrigin(0.5, 0.5);
-        
+        const text = this.add.text(this.cameras.main.width / 2, this.cameras.main.height * 0.5 + index * 50, option, { fontSize: '5vw', fill: '#fff' }).setOrigin(0.5, 0.5);
+
         text.setInteractive();
         text.on('pointerdown', () => {
             checkAnswer.call(this, option, question.answer);
             hideQuestions.call(this);
-            if(valvulaDireitaCimaHabilitada ==true){
-                valvulaDireitaCimaEmUso = true;
-                valvulaDireitaCimaHabilitada= false;
-            }
-            else{
-                valvulaDireitaBaixoEmUso = true;
-                valvulaDireitaBaixoHabilitada = false;
-            }
-            
-            if(trocou == false){
-                trocarValvula.call(this);  
-              }
-            boatSpeed = 1;
-            boat.x += boatSpeed;
-            timer.paused = false;
-            contador = contador-1;
+
+            contador = contador - 1;
         });
 
         return text;
     });
-} 
+}
 function showQuestionsdois(question) {
-    
-    questionPanel = this.add.rectangle(this.cameras.main.width/2, this.cameras.main.height/2, this.cameras.main.width*0.8, this.cameras.main.height*0.8, 0x000fff).setOrigin(0.5, 0.5);
-    questionText = this.add.text(this.cameras.main.width/2, this.cameras.main.height*0.2, question.question, { fontSize: '5vw', fill: '#fff', wordWrap: { width:  this.cameras.main.width* 0.75, useAdvancedWrap: true }}).setOrigin(0.5, 0.5);
-    
+
+    questionPanel = this.add.rectangle(this.cameras.main.width / 2, this.cameras.main.height / 2, this.cameras.main.width * 0.8, this.cameras.main.height * 0.8, 0x000fff).setOrigin(0.5, 0.5);
+    questionText = this.add.text(this.cameras.main.width / 2, this.cameras.main.height * 0.2, question.question, { fontSize: '5vw', fill: '#fff', wordWrap: { width: this.cameras.main.width * 0.75, useAdvancedWrap: true } }).setOrigin(0.5, 0.5);
+
     optionTexts = question.options.map((option, index) => {
-        const text = this.add.text(this.cameras.main.width/2, this.cameras.main.height*0.5 + index * 50, option, { fontSize: '5vw', fill: '#fff'}).setOrigin(0.5, 0.5);
-        
+        const text = this.add.text(this.cameras.main.width / 2, this.cameras.main.height * 0.5 + index * 50, option, { fontSize: '5vw', fill: '#fff' }).setOrigin(0.5, 0.5);
         text.setInteractive();
         text.on('pointerdown', () => {
             checkAnswer.call(this, option, question.answer);
             hideQuestionsdois.call(this);
-            boatSpeed2 = 1;
-            boat2.x += boatSpeed2;
-            timer.paused = false;
-            contador = contador-1;
+            contador = contador - 1;
         });
 
         return text;
@@ -371,10 +389,18 @@ function hideQuestions() {
     }
     optionTexts.forEach(text => text.destroy());
     optionTexts = [];
-    boatSpeed = 1;
     pararPersonagem = false;
-    boat.x += boatSpeed;
-    podePerguntarUm = false;
+    trocou = false;
+    if (valvulaDireitaBaixoHabilitada) {
+        valvulaDireitaBaixoHabilitada = false;
+        valvulaDireitaBaixoEmUso = true;
+    } else {
+        valvulaDireitaCimaHabilitada = false;
+        valvulaDireitaCimaEmUso = true;
+    }
+    auxTimer1 = countdownTime - 5;
+    trocarValvula.call(this);
+
 }
 function hideQuestionsdois() {
     if (questionPanel) {
@@ -387,10 +413,19 @@ function hideQuestionsdois() {
     }
     optionTexts.forEach(text => text.destroy());
     optionTexts = [];
-    boatSpeed2 = 1;
+    trocouDois = false;
+    if (valvulaEsquerdaBaixoHabilitada) {
+        valvulaEsquerdaBaixoHabilitada = false;
+        valvulaEsquerdaBaixoEmUso = true;
+    }
+    else {
+        valvulaEsquerdaCimaHabilitada = false;
+        valvulaEsquerdaCimaEmUso = true;
+    }
+    auxTimer2 = countdownTime - 5;
+    trocarValvuladois.call(this);
     pararPersonagem = false;
-    boat2.x += boatSpeed2;
-    podePerguntarDois = false;
+
 }
 function checkAnswer(selected, correctAnswer) {
     if (selected === correctAnswer) {
@@ -407,79 +442,120 @@ function createNewBoat() {
     boat.setCollideWorldBounds(true);
     boat.body.immovable = true;
     let escalaBarco;
-    if(this.cameras.main.width>=1000){
+    if (this.cameras.main.width >= 1000) {
         escalaBarco = 1;
     }
-    else{
-        escalaBarco= 0.5
+    else {
+        escalaBarco = 0.5
     }
     boat.setScale(escalaBarco);
     canInteract = false;
+    valvulaDireitaBaixoEmUso = false;
+    valvulaDireitaCimaEmUso = false;
+    trocou = false;
 }
 function createNewBoat2() {
     boat2 = this.physics.add.image(0, 0, 'boat2');
     boat2.setCollideWorldBounds(true);
     boat2.body.immovable = true;
     let escalaBarco;
-    if(this.cameras.main.width>=1000){
+    if (this.cameras.main.width >= 1000) {
         escalaBarco = 1;
     }
-    else{
-        escalaBarco= 0.5
+    else {
+        escalaBarco = 0.5
     }
     boat2.setScale(escalaBarco);
     canInteract = false;
+    valvulaEsquerdaBaixoEmUso = false;
+    valvulaEsquerdaCimaEmUso = false;
+    trocouDois = false;
 }
 
 function update() {
-    if(contador == 0){
+    if (contador == 0) {
         showCompletionMessage.call(this);
     }
-    if (boat) {
-        boat.x += boatSpeed;
-        boat2.x += boatSpeed2;
-        if (boat.x == Math.floor(this.cameras.main.width*0.25) ) {
-            boatSpeed = 0;
-            boat.x += boatSpeed;
-            baia1Livre == false;
-            podePerguntarUm = true;
-            if(trocou == false){
-              trocarValvula.call(this);  
-            }
-            
-        }
-        
-        if (boat2.x == Math.floor(this.cameras.main.width*0.75) ) {
+    boat2.x += boatSpeed2;
+    boat.x += boatSpeed;
+    if (boat2) {
+        if (boat2.x == Math.floor(this.cameras.main.width * 0.75)) {
             boatSpeed2 = 0;
             boat2.x += boatSpeed;
-            podePerguntarDois = true;
-            trocarValvula.call(this);
-        }
-        
-        if (boat.x == Math.floor(this.cameras.main.width*0.9)) {
-            boat.destroy(); 
-            if (availableQuestions.length > 0) {
-                createNewBoat.call(this); 
-            }
-        }
-        if (boat2.x == Math.floor(this.cameras.main.width*0.9)) {
-            boat2.destroy(); 
-            if (availableQuestions.length > 0) {
-                createNewBoat2.call(this); 
-            }
-        }
-        
-    }
 
-    if ((cursors.left.isDown ||isMovingLeft) && !pararPersonagem && player.x > this.cameras.main.width*0.22) {
+            if (trocouDois == false) {
+                trocarValvuladois.call(this);
+            }
+            if (auxTimer2 == countdownTime) {
+                if (valvulaEsquerdaBaixoEmUso) {
+                    valvulaEsquerdaBaixoAux.destroy();
+                    valvulaEsquerdaBaixoEmUso = false;
+                }
+                if (valvulaEsquerdaCimaEmUso) {
+                    valvulaEsquerdaCimaAux.destroy();
+                    valvulaEsquerdaCimaEmUso = false;
+                }
+                boatSpeed2 = 1;
+                boat2.x += boatSpeed2;
+            }
+
+
+        }
+        if (boat2.x == Math.floor(this.cameras.main.width * 0.9)) {
+            boat2.destroy();
+            if (availableQuestions.length > 0) {
+                createNewBoat2.call(this);
+
+            }
+        }
+    }
+    if (boat) {
+        if (boat.x == Math.floor(this.cameras.main.width * 0.25)) {
+            boatSpeed = 0;
+            if (trocou == false) {
+                trocarValvula.call(this);
+            }
+            if (auxTimer1 == countdownTime) {
+                if (valvulaDireitaBaixoEmUso) {
+                    valvulaDireitaBaixoAux.destroy();
+                    valvulaDireitaBaixoEmUso = false;
+                } if (valvulaDireitaCimaEmUso) {
+                    valvulaDireitaCimaAux.destroy();
+                    valvulaDireitaCimaEmUso = false;
+                }
+                if (valvulaEsquerdaBaixoEmUso || valvulaEsquerdaBaixoHabilitada) {
+                    valvulaEsquerdaBaixoAux.destroy();
+                    valvulaEsquerdaBaixoEmUso = false;
+                }
+                if (valvulaEsquerdaCimaEmUso || valvulaEsquerdaCimaHabilitada) {
+                    valvulaEsquerdaCimaAux.destroy();
+                    valvulaEsquerdaCimaEmUso = false;
+                } 
+                boatSpeed = 1;
+                  boatSpeed2 = 1;
+            }
+
+        }
+        if (boat.x == Math.floor(this.cameras.main.width * 0.9)) {
+            boat.destroy();
+            if (availableQuestions.length > 0) {
+                createNewBoat.call(this);
+            }
+        }
+
+
+    }
+    
+
+    if ((cursors.left.isDown || isMovingLeft) && !pararPersonagem && player.x > this.cameras.main.width * 0.22) {
         player.setVelocityX(-100);
         player.setVelocityY(0);
         player.anims.play('left', true);
-    } else if ((cursors.right.isDown || isMovingRight)&& !pararPersonagem && player.x < this.cameras.main.width*0.78 ) {
+    } else if ((cursors.right.isDown || isMovingRight) && !pararPersonagem && player.x < this.cameras.main.width * 0.78) {
         player.setVelocityX(100);
         player.setVelocityY(0);
         player.anims.play('right', true);
-    } else if ((cursors.up.isDown || isMovingUp ) && !pararPersonagem && player.y>this.cameras.main.height*0.28) {
+    } else if ((cursors.up.isDown || isMovingUp) && !pararPersonagem && player.y > this.cameras.main.height * 0.28) {
         player.anims.play('up', true);
         player.setVelocityX(0);
         player.setVelocityY(-100);
@@ -492,6 +568,6 @@ function update() {
         player.setVelocityY(0);
         player.anims.play('down');
     }
-    
-    
+
+
 }
