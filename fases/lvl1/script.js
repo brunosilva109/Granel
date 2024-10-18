@@ -86,6 +86,10 @@ function preload() {
     this.load.image('sky', 'https://raw.githubusercontent.com/brunosilva109/Granel/main/img/MAPA.png');
     this.load.image('boat', 'https://raw.githubusercontent.com/brunosilva109/Granel/refs/heads/main/img/navio/NAVIO.png');
     this.load.image('boat2', 'https://raw.githubusercontent.com/brunosilva109/Granel/refs/heads/main/img/navio/NavioBaiaDois.png');
+    this.load.image('ponteiroCima', 'https://raw.githubusercontent.com/brunosilva109/Granel/refs/heads/main/img/controle/cima.png');
+    this.load.image('ponteiroBaixo', 'https://raw.githubusercontent.com/brunosilva109/Granel/refs/heads/main/img/controle/baixo.png');
+    this.load.image('ponteiroEsquerda', 'https://raw.githubusercontent.com/brunosilva109/Granel/refs/heads/main/img/controle/esquerda.png');
+    this.load.image('ponteiroDireita', 'https://raw.githubusercontent.com/brunosilva109/Granel/refs/heads/main/img/controle/direita.png');
     this.load.spritesheet('esquerda', 'https://raw.githubusercontent.com/brunosilva109/Granel/main/img/personagem/esquerda.png', { frameWidth: 58, frameHeight: 65 });
     this.load.spritesheet('direita', 'https://raw.githubusercontent.com/brunosilva109/Granel/main/img/personagem/direita.png', { frameWidth: 59, frameHeight: 65 });
     this.load.spritesheet('cima', 'https://raw.githubusercontent.com/brunosilva109/Granel/main/img/personagem/costas.png', { frameWidth: 58, frameHeight: 65 });
@@ -164,10 +168,10 @@ function create() {
         loop: true
     });
     if (this.cameras.main.width < 1000) {
-        const leftButton = this.add.rectangle((this.cameras.main.width / 2) - 50, this.cameras.main.height - 125, 50, 50, 0x0000ff).setOrigin(0.5, 0.5).setInteractive();
-        const rightButton = this.add.rectangle((this.cameras.main.width / 2) + 50, this.cameras.main.height - 125, 50, 50, 0x00ff00).setOrigin(0.5, 0.5).setInteractive();
-        const upButton = this.add.rectangle(this.cameras.main.width / 2, this.cameras.main.height - 175, 50, 50, 0xff0000).setOrigin(0.5, 0.5).setInteractive();
-        const downButton = this.add.rectangle(this.cameras.main.width / 2, this.cameras.main.height - 75, 50, 50, 0xffff00).setOrigin(0.5, 0.5).setInteractive();
+        const leftButton = this.physics.add.sprite((this.cameras.main.width / 2) - 50, this.cameras.main.height - 50, 'ponteiroEsquerda').setOrigin(0.5, 0.5).setInteractive().setScale(2.5);
+        const rightButton = this.physics.add.sprite((this.cameras.main.width / 2) + 50, this.cameras.main.height - 50, 'ponteiroDireita').setOrigin(0.5, 0.5).setInteractive().setScale(2.5);
+        const upButton = this.physics.add.sprite((this.cameras.main.width / 2) , this.cameras.main.height - 75, 'ponteiroCima').setOrigin(0.5, 0.5).setInteractive().setScale(2.5);;
+        const downButton = this.physics.add.sprite((this.cameras.main.width / 2) , this.cameras.main.height - 25, 'ponteiroBaixo').setOrigin(0.5, 0.5).setInteractive().setScale(2.5);;
 
         leftButton.on('pointerdown', () => isMovingLeft = true);
         rightButton.on('pointerdown', () => isMovingRight = true);
@@ -179,6 +183,7 @@ function create() {
         upButton.on('pointerup', () => isMovingUp = false);
         downButton.on('pointerup', () => isMovingDown = false);
     }
+    
 }
 
 function trocarValvula() {
