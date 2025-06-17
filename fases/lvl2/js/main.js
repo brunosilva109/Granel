@@ -124,14 +124,17 @@
                 addGrama(0, 0, 0, 100, 100, 25, 25); // Grama cobrindo toda a área
 
                 // Criar ruas
-                addRua(0, 0, 0, 5,100); // Rua principal vertical
+                addRua(-5, 0, 0, 5,100); // Rua principal vertical
+                addRua(5, 0, 0, 5,100); // Rua principal vertical
 
                 // Calçadas
-                addCalcada(-3, 0, 0, 2, 100, 1, 20); // Calçada esquerda
-                addCalcada(3, 0, 0, 2, 100, 1, 20); // Calçada direita
+                addCalcada(0, 0, 0, 5, 100, 1, 20); // Calçada esquerda
+                addCalcada(-8.5, 0, 0, 2, 100, 1, 20); // Calçada direita
+                addCalcada(8.5, 0, 0, 2, 100, 1, 20); // Calçada direita
 
-                // Estacionamento
-                addRua(30, 0, 30, 20, 15, 4, 3); // Área de estacionamento
+                addCalcada(15, 0, 0, 12,20, 1, 20);
+                addCalcada(-15, 0, 0, 12,20, 1, 20);
+
 
                 // Create walls
                 createWalls();
@@ -142,12 +145,12 @@
                 // Create lever
                 createLever();
 
-                // Create hose connectors
-                createHoseConnectors(-5,5);
-                createHoseConnectors(-10,5);
 
                 // Create hose pickup point
-                createHosePickup();
+                createHosePickup(10, 0.5, 10);
+                createHosePickup(-10, 0.5, -10);
+
+            
 
                 // Add event listeners
                 window.addEventListener('resize', onWindowResize);

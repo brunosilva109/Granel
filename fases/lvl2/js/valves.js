@@ -3,7 +3,7 @@ let valves = [];
 let lever = null;
 let hasLever = false;
 let activatedValves = 0;
-const totalValves = 10;
+let totalValves;
 
         function createValve(x, y, z) {
             const valveMaterial = new THREE.MeshStandardMaterial({
@@ -47,11 +47,7 @@ const totalValves = 10;
 
             const baseGeometry = new THREE.CylinderGeometry(0.3, 0.3, 0.5, 16);
             const base = new THREE.Mesh(baseGeometry, leverMaterial);
-            base.position.set(
-                -20 + Math.random() * 40,
-                0.25,
-                -20 + Math.random() * 40
-            );
+            base.position.set(0,0.25,0);
             base.castShadow = true;
             base.receiveShadow = true;
 
@@ -86,7 +82,7 @@ const totalValves = 10;
             handVisible = true;
 
             document.getElementById('objective').innerHTML =
-                `Find and activate the valves (${activatedValves}/${totalValves})`;
+                `Ative as Valvulas (${activatedValves}/${totalValves})`;
         }
 
         function activateValve(valve) {
@@ -100,12 +96,12 @@ const totalValves = 10;
             valve.rotation = 0;
 
             document.getElementById('objective').innerHTML =
-                `Find and activate the valves (${activatedValves}/${totalValves})`;
+                `Ative as Valvulas  (${activatedValves}/${totalValves})`;
 
             if (activatedValves >= totalValves) {
                 setTimeout(() => {
                     document.getElementById('objective').innerHTML =
-                        "Congratulations! You've activated all valves! Now connect the hose to refuel the truck.";
+                        "Conecte o Mangote no Caminão";
                 }, 1000);
             }
         }

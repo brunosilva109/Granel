@@ -16,7 +16,7 @@ let refuelInterval = null;
 let truckConnector = null;
 
 
-        function createHosePickup() {
+        function createHosePickup(x,y,z) {
             const geometry = new THREE.CylinderGeometry(0.5, 0.5, 1, 16);
             const material = new THREE.MeshStandardMaterial({
                 color: 0x000000,
@@ -24,7 +24,7 @@ let truckConnector = null;
                 metalness: 0.3
             });
             const hosePickup = new THREE.Mesh(geometry, material);
-            hosePickup.position.set(10, 0.5, 10);
+            hosePickup.position.set(x,y,z);
             hosePickup.userData = {
                 isHosePickup: true
             };
@@ -43,12 +43,13 @@ let truckConnector = null;
 
             // First connector (fixed position)
             const connector1 = new THREE.Mesh(connectorGeometry, connectorMaterial);
-            connector1.position.set(posX, 1, posZ);
-            connector1.rotation = Math.PI/2;
+            connector1.position.set(posX, .6, posZ);
+            connector1.rotation.z = Math.PI/2;
             connector1.userData = {
                 isHoseConnector: true,
                 connectorId: 1
             };
+
             scene.add(connector1);
             objects.push(connector1);
             hoseConnectors.push(connector1);

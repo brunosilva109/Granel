@@ -29,7 +29,10 @@ const gravity = -0.02;
                 });
 
                 const cloud = new THREE.Sprite(cloudMaterial);
-                cloud.scale.set(20, 10, 1);
+                let escalaX =Math.random() * 60;
+                let escalay =escalaX/2;
+                let escalaz =escalaX/20;
+                cloud.scale.set(escalaX, escalay, escalaz);
 
                 cloud.position.x = Math.random() * 400 - 200;
                 cloud.position.y = Math.random() * 50 + 50;
@@ -150,8 +153,8 @@ const gravity = -0.02;
             const walls = [
                 { position: [0, wallSettings.height / 2, -50], rotation: [0, 0, 0] },
                 { position: [0, wallSettings.height / 2, 50], rotation: [0, 0, 0] },
-                { position: [-50, wallSettings.height / 2, 0], rotation: [0, Math.PI / 2, 0] },
-                { position: [50, wallSettings.height / 2, 0], rotation: [0, Math.PI / 2, 0] }
+                { position: [-25, wallSettings.height / 2, 0], rotation: [0, Math.PI / 2, 0] },
+                { position: [25, wallSettings.height / 2, 0], rotation: [0, Math.PI / 2, 0] }
             ];
 
             walls.forEach(wall => {
@@ -160,36 +163,102 @@ const gravity = -0.02;
         }
 
         function createEnvironment() {
-            // Tubos horizontais
-            addPipe(10, 0.8, 10, 0, 0, Math.PI / 2, 10);
-            addPipe(-10, 0.8, -10, 0, 0, Math.PI / 2, 10);
 
-            // Tubos verticais
-            addPipe(5, 3, -5, 0, 0, 0, 6);
-            addPipe(-15, 3, 5, 0, 0, 0, 8);
+            // Tubos tank1
+            addPipe(24, 0.8, 25, 0, Math.PI/2, Math.PI / 2, 35); 
+            addPipe(21.7, 0.8, 7.6, 0, 0, Math.PI / 2, 5);
+            addPipe(25.3, 0.8, 42.4, 0, 0, Math.PI / 2, 3);
+            addPipe(13, 0.6, 7.6, 0, 0, Math.PI / 2, 3);
+            addBarreira(13, 0.8, 7.6, 0, 0, Math.PI / 2, 3);
+            addPipe(16.8, 3.3, 7.6, 0, 0, Math.PI / 2, 5);
+            addPipe(19, 2, 7.6, 0, 0, 0, 3);
+            addPipe(14.5, 2.3, 7.6, 0, 0, 0, 2);
+            addMotor(16, 7.6, 1);
+            createValve(12, 0.6, 7.6);
+            createValve(24, 0.8, 18);
+            createHoseConnectors(11.3,7.6);
 
-            // Tubos Horizontais compridos
-            addPipe(48, 0.8, 0, 0, Math.PI/2, Math.PI / 2, 100); 
-            addPipe(46, 0.8, 0, 0, Math.PI/2, Math.PI / 2, 100); 
 
-            // Válvulas
-            createValve(48, 1, 0);
-            createValve(0, 1, 45);
-            createValve(11.5, 1, 10);
-            createValve(-8.5, 1, -10);
+
+            // Tubos tank2
+            addPipe(22.7, 0.8, 0, 0, 0, Math.PI / 2, 8);
+            addPipe(16.8, 3.3, 0, 0, 0, Math.PI / 2, 5);
+            addPipe(19, 2, 0, 0, 0, 0, 3);
+            addPipe(14.5, 2.3, 0, 0, 0, 0, 2);
+            addMotor(16, 0, 1);
+            addPipe(13, 0.6, 0, 0, 0, Math.PI / 2, 3);
+            addBarreira(13, 0.8, 0, 0, 0, Math.PI / 2, 3);
+            createValve(12, 0.6, 0);
+            createValve(23, 0.8, 0);
+            createHoseConnectors(11.3,0);
+
+            // Tubos tank3
+            addPipe(24, 0.8, -25, 0, Math.PI/2, Math.PI / 2, 35); 
+            addPipe(21.7, 0.8, -7.6, 0, 0, Math.PI / 2, 5);
+            addPipe(25.3, 0.8, -42.4, 0, 0, Math.PI / 2, 3);
+            addPipe(16.8, 3.3, -7.6, 0, 0, Math.PI / 2, 5);
+            addPipe(19, 2, -7.6, 0, 0, 0, 3);
+            addPipe(14.5, 2.3, -7.6, 0, 0, 0, 2);
+            addMotor(16, -7.6, 1);
+            addPipe(13, 0.6, -7.6, 0, 0, Math.PI / 2, 3);
+            addBarreira(13, 0.8, -7.6, 0, 0, Math.PI / 2, 3);
+            createValve(12, 0.6, -7.6);
+            createValve(24, 0.8, -18);
+            createHoseConnectors(11.3,-7.6);
+
+            // Tubos tank4
+            addPipe(-24, 0.8, 25, 0, Math.PI/2, Math.PI / 2, 35); 
+            addPipe(-21.7, 0.8, 7.6, 0, 0, Math.PI / 2, 5);
+            addPipe(-25.3, 0.8, 42.4, 0, 0, Math.PI / 2, 3);
+            addPipe(-16.8, 3.3, 7.6, 0, 0, Math.PI / 2, 5);
+            addPipe(-19, 2, 7.6, 0, 0, 0, 3);
+            addPipe(-14.5, 2.3, 7.6, 0, 0, 0, 2);
+            addMotor(-16, 7.6, 3);
+            addPipe(-13, 0.6, 7.6, 0, 0, Math.PI / 2, 3);
+            addBarreira(-13, 0.8, 7.6, 0, 0, Math.PI / 2, 3);
+            createValve(-12, 0.6, 7.6);
+            createValve(-24, 0.8, 18);
+            createHoseConnectors(-11.3,7.6);
+            // Tubos tank5
+            addPipe(-22.7, 0.8, 0, 0, 0, Math.PI / 2, 8);
+            addPipe(-16.8, 3.3, 0, 0, 0, Math.PI / 2, 5);
+            addPipe(-19, 2, 0, 0, 0, 0, 3);
+            addPipe(-14.5, 2.3, 0, 0, 0, 0, 2);
+            addMotor(-16, 0, 3);
+            addPipe(-13, 0.6, 0, 0, 0, Math.PI / 2, 3);
+            addBarreira(-13, 0.8,0, 0, 0, Math.PI / 2, 3);
+            createValve(-12, 0.6, 0);
+            createValve(-23, 0.8, 0);
+            createHoseConnectors(-11.3,0);
+
+            // Tubos tank6
+            addPipe(-24, 0.8, -25, 0, Math.PI/2, Math.PI / 2, 35); 
+            addPipe(-21.7, 0.8, -7.6, 0, 0, Math.PI / 2, 5);
+            addPipe(-25.3, 0.8, -42.4, 0, 0, Math.PI / 2, 3);
+            addPipe(-16.8, 3.3, -7.6, 0, 0, Math.PI / 2, 5);
+            addPipe(-19, 2, -7.6, 0, 0, 0, 3);
+            addPipe(-14.5, 2.3, -7.6, 0, 0, 0, 2);
+            addMotor(-16, -7.6, 3);
+            addPipe(-13, 0.6, -7.6, 0, 0, Math.PI / 2, 3);
+            addBarreira(-13, 0.8, -7.6, 0, 0, Math.PI / 2, 3);
+            createValve(-12, 0.6, -7.6);
+            createValve(-24, 0.8, -18);
+            createHoseConnectors(-11.3,-7.6);
+
+
 
             // Tanques
-            addTank(75, 0, 45, 20, 40,Math.PI);
-            addTank(75, 0, 0, 20, 40,Math.PI);
-            addTank(75, 0, -45, 20, 40,Math.PI);
+            addTank(50, 0, 45, 20, 40,Math.PI);
+            addTank(50, 0, 0, 20, 40,Math.PI);
+            addTank(50, 0, -45, 20, 40,Math.PI);
+            addTank(-50, 0, 45, 20, 40, 0);
+            addTank(-50, 0, 0, 20, 40, 0);
+            addTank(-50, 0, -45, 20, 40, 0);
 
-            addTank(-75, 0, 45, 20, 40, 0);
-            addTank(-75, 0, 0, 20, 40, 0);
-            addTank(-75, 0, -45, 20, 40, 0);
-
-            addTruck(0, 0, 60); 
+            addTruck(-5, 0, 60); 
 
         }
+            
 
         function addPipe(x, y, z, rotationX = 0, rotationY = 0, rotationZ = 0, length = 10, radius = 0.3) {
             const geometry = new THREE.CylinderGeometry(radius, radius, length, 16);

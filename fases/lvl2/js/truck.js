@@ -218,23 +218,20 @@ let truckMovement = {
                     else if (truck.position.z <= -50) {
                         removeTruck();
                         // Gerar um número aleatório entre 1 e 3
-                        const numeroAleatorio = Math.floor(Math.random() * 3) + 1;
+                        const numeroAleatorio = Math.floor(Math.random() * 2) + 1;
 
                         console.log("Número gerado:", numeroAleatorio);
 
                         // Usar switch case para realizar ações diferentes
                         switch (numeroAleatorio) {
                         case 1:
-                            addTruck(40, 0, 60);
+                            addTruck(5, 0, 60);
                             break;
                         case 2:
-                            addTruck(-40, 0, 60);
-                            break;
-                        case 3:
-                            addTruck(0, 0, 60);
+                            addTruck(-5, 0, 60);
                             break;
                         default:
-                            addTruck(0, 0, 60);
+                            addTruck(5, 0, 60);
                         }
                     }
                     break;
