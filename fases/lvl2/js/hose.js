@@ -32,32 +32,7 @@ let truckConnector = null;
             objects.push(hosePickup);
         }
 
-        function createHoseConnectors(posX = 0,  posZ = 0) {
-            // Create two hose connectors in the scene
-            const connectorGeometry = new THREE.CylinderGeometry(0.4, 0.4, 0.5, 16);
-            const connectorMaterial = new THREE.MeshStandardMaterial({
-                color: 0xffff00,
-                roughness: 0.5,
-                metalness: 0.5
-            });
-
-            // First connector (fixed position)
-            const connector1 = new THREE.Mesh(connectorGeometry, connectorMaterial);
-            connector1.position.set(posX, .6, posZ);
-            connector1.rotation.z = Math.PI/2;
-            connector1.userData = {
-                isHoseConnector: true,
-                connectorId: 1
-            };
-
-            scene.add(connector1);
-            objects.push(connector1);
-            hoseConnectors.push(connector1);
-
-            // Second connector will be attached to the truck
-        }
-
-        function createTruckConnector(truckGroup) {
+        function createHoseConnector(posX = 0, posZ = 0, tankId = null) {
             const connectorGeometry = new THREE.CylinderGeometry(0.4, 0.4, 0.5, 16);
             const connectorMaterial = new THREE.MeshStandardMaterial({
                 color: 0xffff00,
@@ -66,21 +41,59 @@ let truckConnector = null;
             });
 
             const connector = new THREE.Mesh(connectorGeometry, connectorMaterial);
-            connector.position.set(-1.5, 1, 5.5 ); // Position relative to truck
+            connector.position.set(posX, 0.6, posZ);
             connector.rotation.z = Math.PI / 2;
+
             connector.userData = {
                 isHoseConnector: true,
-                connectorId: 2,
-                isTruckConnector: true
+                isTruckConnector: false,
+                connectorId: 1,
+                tankId: tankId,            // associa o conector ao tanque correspondente
+                connectedTo: null          // pode ser 'truck' quando estiver em uso
             };
-            
+
+            scene.add(connector);
+            objects.push(connector);
+            hoseConnectors.push(connector);
+
+            return connector;
+        }
+
+
+        function createTruckConnector(truckGroup, side = 'left') {
+            const connectorGeometry = new THREE.CylinderGeometry(0.4, 0.4, 0.5, 16);
+            const connectorMaterial = new THREE.MeshStandardMaterial({
+                color: 0xffff00,
+                roughness: 0.5,
+                metalness: 0.5
+            });
+
+            const connector = new THREE.Mesh(connectorGeometry, connectorMaterial);
+
+            // Posiciona o conector dependendo do lado do caminhão
+            if (side === 'left') {
+                connector.position.set(-1.5, 1, 5.5); // Posição lateral esquerda
+            } else {
+                connector.position.set(1.5, 1, 5.5); // Posição lateral direita
+            }
+
+            connector.rotation.z = Math.PI / 2;
+
+            connector.userData = {
+                isHoseConnector: true,
+                isTruckConnector: true,
+                connectorId: 2,
+                connectedTo: null,       // será preenchido com tankId quando conectado
+                truckSide: side
+            };
+
             truckGroup.add(connector);
             objects.push(connector);
             hoseConnectors.push(connector);
-            truckConnector = connector;
-            
-            return connector;
+
+            return connector; // importante retornar para futuras verificações
         }
+
 
         function createHoseMesh(startPoint, endPoint) {
             // Create a flexible hose between two points
@@ -170,7 +183,8 @@ let truckConnector = null;
             hasHose = true;
             document.getElementById('hose-info').style.display = 'block';
             document.getElementById('hose-info').innerHTML = 'Hose: Pick up the hose and connect it to the truck and the valve';
-            
+            document.getElementById('hand2').classList.add('visible');
+            dropLever();
             // Slow down player when carrying hose
             speed = normalSpeed * 2;
         }
@@ -178,38 +192,41 @@ let truckConnector = null;
         function dropHose() {
             hasHose = false;
             document.getElementById('hose-info').innerHTML = 'Hose: Connected (you can move freely)';
+            document.getElementById('hand2').classList.remove('visible');
             
             // Reset player speed
-            speed = normalSpeed;
+            //speed = normalSpeed;
         }
 
         function connectHose(connector) {
-            if (!hasHose && !hoseConnected) return;
-            
-            if (!firstConnector) {
-                firstConnector = connector;
-                document.getElementById('hose-info').innerHTML = 'Hose: Connected to first point (click on second connector)';
-                connector.material.color.set(0x00ff00); // Change color to green
-            } else if (!secondConnector && firstConnector !== connector) {
-                secondConnector = connector;
-                hoseConnected = true;
-                connector.material.color.set(0x00ff00); // Change color to green
-                document.getElementById('hose-info').innerHTML = 'Hose: Connected between points!';
-                
-                // Create hose mesh between connectors
-                const startPoint = firstConnector.getWorldPosition(new THREE.Vector3());
-                const endPoint = secondConnector.getWorldPosition(new THREE.Vector3());
-                createHoseMesh(startPoint, endPoint);
-                
-                // Player drops the hose but it remains connected
-                dropHose();
-                
-                // If connected to truck, start refueling
-                if (connector.userData.isTruckConnector || firstConnector.userData.isTruckConnector) {
-                    startRefueling();
-                }
-            }
+    if (!hasHose && !hoseConnected) return;
+
+    if (!firstConnector) {
+        firstConnector = connector;
+        firstConnector.material.color.set(0x00ff00);
+    } else if (!secondConnector && firstConnector !== connector) {
+        secondConnector = connector;
+        hoseConnected = true;
+        secondConnector.material.color.set(0x00ff00);
+
+        // Defina quem está conectado a quem
+        if (firstConnector.userData.isTruckConnector) {
+            firstConnector.userData.connectedTo = 'tank';
+            secondConnector.userData.connectedTo = 'truck';
+        } else {
+            firstConnector.userData.connectedTo = 'truck';
+            secondConnector.userData.connectedTo = 'tank';
         }
+        const startPoint = firstConnector.getWorldPosition(new THREE.Vector3());
+        const endPoint = secondConnector.getWorldPosition(new THREE.Vector3());
+
+
+        createHoseMesh(startPoint, endPoint);
+        dropHose();
+
+        updateSystemState(); // Atualize o estado do sistema
+    }
+}
 
         function disconnectHose() {
             if (!hoseConnected) return;
@@ -240,40 +257,49 @@ let truckConnector = null;
                 document.getElementById('objective').innerHTML = 'Truck is leaving!';
             }
         }
-        function startRefueling() {
-            if (refueling) return;
-            
-            refueling = true;
-            refuelProgress = 0;
-            document.getElementById('refuel-progress').style.display = 'block';
-            updateRefuelProgress();
-            
-            refuelInterval = setInterval(() => {
-                refuelProgress += 1;
+            function startRefueling(tank) {
+                if (refueling) return;
+
+                refueling = true;
+                refuelProgress = 0;
+
+                document.getElementById('refuel-progress').style.display = 'block';
                 updateRefuelProgress();
-                
-                if (refuelProgress >= 100) {
-                    completeRefueling();
-                }
-            }, 100);
-        }
+
+                refuelInterval = setInterval(() => {
+                    refuelProgress += 1;
+                    updateRefuelProgress();
+
+                    if (refuelProgress >= 100) {
+                        resetAllValves()
+                        completeRefueling(tank);
+                    }
+                }, 100);
+            }
+
 
         function updateRefuelProgress() {
             document.getElementById('refuel-bar').style.width = refuelProgress + '%';
             document.getElementById('refuel-text').innerText = refuelProgress + '%';
         }
 
-        function completeRefueling() {
+        function completeRefueling(tank) {
             clearInterval(refuelInterval);
             refueling = false;
-            
             truckMovement.refueled = true;
             
-            
-            document.getElementById('objective').innerHTML = 'Refueling complete! Disconnect the hose to let the truck leave.';
-            
-            // Hide progress bar after delay
+
+            document.getElementById('objective').innerHTML =
+                `Tanque ${tank.id}: abastecimento completo! Desconecte o mangote para liberar o caminhão.`;
+
             setTimeout(() => {
                 document.getElementById('refuel-progress').style.display = 'none';
             }, 3000);
         }
+        function stopRefueling() {
+            clearInterval(refuelInterval);
+            refueling = false;
+            document.getElementById('refuel-progress').style.display = 'none';
+        }
+
+

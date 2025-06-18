@@ -39,8 +39,9 @@ let handVisible = false;
             }
             
             if (event.keyCode === 69) { // E key - drop hose
-                if (hasHose) {
+                if (hasHose || hasLever) {
                     dropHose();
+                    dropLever();
                 }
             }
 

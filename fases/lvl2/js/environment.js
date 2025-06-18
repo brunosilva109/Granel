@@ -161,8 +161,139 @@ const gravity = -0.02;
                 createWallWithCollision(wall.position, wall.rotation);
             });
         }
+        const tanks = [];
+
+        function createTank(tankId, motorPos, valvePositions, connectorPos) {
+            const motor = addMotor(motorPos.x, motorPos.z, motorPos.side);
+            const valves = valvePositions.map(pos => createValve(pos.x, pos.y, pos.z));
+            const connector = createHoseConnector(connectorPos.x, connectorPos.z, tankId);
+
+            // Registro no conector do tanque
+            connector.userData.tankId = tankId;
+
+            const tank = {
+                id: tankId,
+                motor: motor,
+                valves: valves,
+                hoseConnector: connector
+            };
+            tank.motor.tank = tank; 
+            tanks.push(tank);
+        }
+        function createNumberPlate(number, x, y, z) {
+            // Criar canvas para a textura
+            const canvas = document.createElement('canvas');
+            canvas.width = 128;
+            canvas.height = 64;
+            const ctx = canvas.getContext('2d');
+
+            // Fundo da placa
+            ctx.fillStyle = 'white';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Texto do número
+            ctx.font = '48px Arial';
+            ctx.fillStyle = 'black';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(number.toString(), canvas.width / 2, canvas.height / 2);
+
+            // Criar textura com o canvas
+            const texture = new THREE.CanvasTexture(canvas);
+            texture.minFilter = THREE.LinearFilter; // para evitar borrão
+
+            // Criar material usando a textura
+            const material = new THREE.MeshBasicMaterial({ map: texture, transparent: false });
+
+            // Criar plano
+            const geometry = new THREE.PlaneGeometry(1, 0.5);
+            const plate = new THREE.Mesh(geometry, material);
+
+            plate.position.set(x, y, z);
+
+            // Deixar sempre "de frente" para a câmera (opcional)
+            plate.lookAt(camera.position);
+
+            // Adicionar à cena
+            scene.add(plate);
+
+            return plate;
+        }
+        
+
+
+
 
         function createEnvironment() {
+            const motorPositions = [
+            { number: 1, x: 16, y: 1.5, z: 7.6 },
+            { number: 2, x: 16, y: 1.5, z: 0 },
+            { number: 3, x: 16, y: 1.5, z: -7.6 },
+            { number: 4, x: -16, y: 1.5, z: 7.6 },
+            { number: 5, x: -16, y: 1.5, z: 0 },
+            { number: 6, x: -16, y: 1.5, z: -7.6 },
+        ];
+
+        motorPositions.forEach(pos => {
+            createNumberPlate(pos.number, pos.x, pos.y, pos.z);
+        });
+            // Tanques da ESQUERDA: 1, 2, 3
+            createTank(1, 
+                { x: 16, z: 7.6, side: 1 }, 
+                [
+                    { x: 12, y: 0.6, z: 7.6 },
+                    { x: 24, y: 0.8, z: 18 }
+                ],
+                { x: 11.3, z: 7.6 }
+            );
+
+            createTank(2, 
+                { x: 16, z: 0, side: 1 }, 
+                [
+                    { x: 12, y: 0.6, z: 0 },
+                    { x: 23, y: 0.8, z: 0 }
+                ],
+                { x: 11.3, z: 0 }
+            );
+
+            createTank(3, 
+                { x: 16, z: -7.6, side: 1 }, 
+                [
+                    { x: 12, y: 0.6, z: -7.6 },
+                    { x: 24, y: 0.8, z: -18 }
+                ],
+                { x: 11.3, z: -7.6 }
+            );
+
+            // Tanques da DIREITA: 4, 5, 6
+            createTank(4, 
+                { x: -16, z: 7.6, side: 3 }, 
+                [
+                    { x: -12, y: 0.6, z: 7.6 },
+                    { x: -24, y: 0.8, z: 18 }
+                ],
+                { x: -11.3, z: 7.6 }
+            );
+
+            createTank(5, 
+                { x: -16, z: 0, side: 3 }, 
+                [
+                    { x: -12, y: 0.6, z: 0 },
+                    { x: -23, y: 0.8, z: 0 }
+                ],
+                { x: -11.3, z: 0 }
+            );
+
+            createTank(6, 
+                { x: -16, z: -7.6, side: 3 }, 
+                [
+                    { x: -12, y: 0.6, z: -7.6 },
+                    { x: -24, y: 0.8, z: -18 }
+                ],
+                { x: -11.3, z: -7.6 }
+            );
+            
+
 
             // Tubos tank1
             addPipe(24, 0.8, 25, 0, Math.PI/2, Math.PI / 2, 35); 
@@ -173,10 +304,6 @@ const gravity = -0.02;
             addPipe(16.8, 3.3, 7.6, 0, 0, Math.PI / 2, 5);
             addPipe(19, 2, 7.6, 0, 0, 0, 3);
             addPipe(14.5, 2.3, 7.6, 0, 0, 0, 2);
-            addMotor(16, 7.6, 1);
-            createValve(12, 0.6, 7.6);
-            createValve(24, 0.8, 18);
-            createHoseConnectors(11.3,7.6);
 
 
 
@@ -185,12 +312,8 @@ const gravity = -0.02;
             addPipe(16.8, 3.3, 0, 0, 0, Math.PI / 2, 5);
             addPipe(19, 2, 0, 0, 0, 0, 3);
             addPipe(14.5, 2.3, 0, 0, 0, 0, 2);
-            addMotor(16, 0, 1);
             addPipe(13, 0.6, 0, 0, 0, Math.PI / 2, 3);
             addBarreira(13, 0.8, 0, 0, 0, Math.PI / 2, 3);
-            createValve(12, 0.6, 0);
-            createValve(23, 0.8, 0);
-            createHoseConnectors(11.3,0);
 
             // Tubos tank3
             addPipe(24, 0.8, -25, 0, Math.PI/2, Math.PI / 2, 35); 
@@ -199,12 +322,8 @@ const gravity = -0.02;
             addPipe(16.8, 3.3, -7.6, 0, 0, Math.PI / 2, 5);
             addPipe(19, 2, -7.6, 0, 0, 0, 3);
             addPipe(14.5, 2.3, -7.6, 0, 0, 0, 2);
-            addMotor(16, -7.6, 1);
             addPipe(13, 0.6, -7.6, 0, 0, Math.PI / 2, 3);
             addBarreira(13, 0.8, -7.6, 0, 0, Math.PI / 2, 3);
-            createValve(12, 0.6, -7.6);
-            createValve(24, 0.8, -18);
-            createHoseConnectors(11.3,-7.6);
 
             // Tubos tank4
             addPipe(-24, 0.8, 25, 0, Math.PI/2, Math.PI / 2, 35); 
@@ -213,23 +332,16 @@ const gravity = -0.02;
             addPipe(-16.8, 3.3, 7.6, 0, 0, Math.PI / 2, 5);
             addPipe(-19, 2, 7.6, 0, 0, 0, 3);
             addPipe(-14.5, 2.3, 7.6, 0, 0, 0, 2);
-            addMotor(-16, 7.6, 3);
             addPipe(-13, 0.6, 7.6, 0, 0, Math.PI / 2, 3);
             addBarreira(-13, 0.8, 7.6, 0, 0, Math.PI / 2, 3);
-            createValve(-12, 0.6, 7.6);
-            createValve(-24, 0.8, 18);
-            createHoseConnectors(-11.3,7.6);
+
             // Tubos tank5
             addPipe(-22.7, 0.8, 0, 0, 0, Math.PI / 2, 8);
             addPipe(-16.8, 3.3, 0, 0, 0, Math.PI / 2, 5);
             addPipe(-19, 2, 0, 0, 0, 0, 3);
             addPipe(-14.5, 2.3, 0, 0, 0, 0, 2);
-            addMotor(-16, 0, 3);
             addPipe(-13, 0.6, 0, 0, 0, Math.PI / 2, 3);
             addBarreira(-13, 0.8,0, 0, 0, Math.PI / 2, 3);
-            createValve(-12, 0.6, 0);
-            createValve(-23, 0.8, 0);
-            createHoseConnectors(-11.3,0);
 
             // Tubos tank6
             addPipe(-24, 0.8, -25, 0, Math.PI/2, Math.PI / 2, 35); 
@@ -238,12 +350,9 @@ const gravity = -0.02;
             addPipe(-16.8, 3.3, -7.6, 0, 0, Math.PI / 2, 5);
             addPipe(-19, 2, -7.6, 0, 0, 0, 3);
             addPipe(-14.5, 2.3, -7.6, 0, 0, 0, 2);
-            addMotor(-16, -7.6, 3);
             addPipe(-13, 0.6, -7.6, 0, 0, Math.PI / 2, 3);
             addBarreira(-13, 0.8, -7.6, 0, 0, Math.PI / 2, 3);
-            createValve(-12, 0.6, -7.6);
-            createValve(-24, 0.8, -18);
-            createHoseConnectors(-11.3,-7.6);
+
 
 
 

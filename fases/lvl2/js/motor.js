@@ -1,3 +1,4 @@
+const motors = [];
 // Função auxiliar para adicionar uma geometria à cena
 function addGeometry(geometry, color, x, y, z, rotationX,rotationY,rotationZ) {
   const material = new THREE.MeshStandardMaterial({ color });
@@ -12,6 +13,7 @@ function addGeometry(geometry, color, x, y, z, rotationX,rotationY,rotationZ) {
 // Função para adicionar o motor com a estrutura ajustada
 function addMotor(baseX, baseZ,num) {
     // Cria um "grupo" que serve como um ponto de origem para todos os componentes do motor
+    let panelGroup;
     const motorGroup = new THREE.Group();  // Usamos um grupo para o motor
     // Posições relativas para cada geometria (agora em relação ao ponto baseX, baseY, baseZ)
             const part1 = addGeometry(new THREE.BoxGeometry(4, 0.2, 1.5), 0x000000, 0, 0, 0, 0,0,0);      // Base do motor (caixa)
@@ -27,32 +29,66 @@ function addMotor(baseX, baseZ,num) {
             motorGroup.position.set(baseX,0,baseZ);
   
     switch (num) {
+        
         case 1:
              
-             createMotorPanel(baseX+1,baseZ-.5,Math.PI);
+            panelGroup = createMotorPanel(baseX+1,baseZ-.5,Math.PI);
             addBarreira(baseX, 0.8, baseZ , 0, 0, Math.PI / 2, 3);
             break;   
         case 2:
-            createMotorPanel(baseX+.5,baseZ+1,Math.PI / 2);
+           panelGroup =  createMotorPanel(baseX+.5,baseZ+1,Math.PI / 2);
             motorGroup.rotation.y = -Math.PI/2;
             addBarreira(baseX, 0.8, baseZ , 0, Math.PI / 2, Math.PI / 2, 3);
             break;
         case 3:
-            createMotorPanel(baseX-1,baseZ+.5,0);
+            panelGroup = createMotorPanel(baseX-1,baseZ+.5,0);
             motorGroup.rotation.y = Math.PI;
             addBarreira(baseX, 0.8, baseZ , 0, 0, Math.PI / 2, 3);
             
             break;
         case 4:
-            createMotorPanel(baseX-.5,baseZ-1,-Math.PI / 2);
+            panelGroup = createMotorPanel(baseX-.5,baseZ-1,-Math.PI / 2);
             motorGroup.rotation.y = Math.PI/2;
             addBarreira(baseX, 0.8, baseZ , 0, Math.PI / 2, Math.PI / 2, 3);
             break;
     }
+      
+        panelGroup.userData.lightOn = motorLightOn;
+        panelGroup.userData.lightOff = motorLightOff;
+        panelGroup.userData.button = motorButton;
+
+        // Armazene referência do motor no botão
+        panelGroup.userData.motor = motorGroup;
+
+        // Também associe o painel ao grupo motor (se precisar)
+        motorGroup.userData.panel = panelGroup;
+
+        // Adiciona motor e painel à cena
+        scene.add(motorGroup);
+        scene.add(panelGroup);
+
+        motors.push({ motorGroup, panelGroup, running: false, canRun: false, num }); // exemplo de armazenamento
+
 
 
     // Agora podemos adicionar o grupo à cena
     scene.add(motorGroup); // Adiciona todo o conjunto à cena
+    const motor = {
+        mesh: motorGroup,
+        running: false,
+        canRun: false,
+        panel: {
+            button: motorButton,
+            lightOn: motorLightOn,
+            lightOff: motorLightOff
+        }
+    };
+
+    // Armazena em um array global se quiser:
+    motors.push(motor);
+
+    // Ou use diretamente ao montar os tanks
+    return motor;
 }
     function addBarreira(x, y, z, rotationX = 0, rotationY = 0, rotationZ = 0, length = 10, radius = 0.5) {
         // Cria a geometria do cano
@@ -136,50 +172,73 @@ function createMotorPanel(x,z, rotation) {
     panelGroup.position.set(x,.8, z);
     panelGroup.rotation.y = rotation;
     scene.add(panelGroup);
+    return panelGroup;
+    
 }
 
-function toggleMotor() {
-    if (!hoseConnected) {
-        showMotorMessage("Conecte o mangote antes de ligar o motor!");
-
+function toggleMotor(motor) {
+    const panel = motor.userData.panel;
+    
+    const verifica = checkSystemStatus(); // ← Aqui
+    if (!verifica) {
+        showMotorMessage("Conecte o mangote e abra as válvulas corretas antes de ligar o motor!");
         return;
     }
 
-    motorOn = !motorOn;
+    motor.running = !motor.running;
 
-    if (motorOn) {
-        motorLightOn.material.emissive.set(0x00ff00);
-        motorLightOff.material.emissive.set(0x000000);
-        startRefueling();
-    } else {
-        motorLightOn.material.emissive.set(0x000000);
-        motorLightOff.material.emissive.set(0xff0000);
-        stopRefueling();
+    if (!panel?.userData) {
+        console.warn("Painel não encontrado no motor:", motor);
+        return;
     }
+
+    const lightOn = panel.userData.lightOn;
+    const lightOff = panel.userData.lightOff;
+
+    if (verifica) {
+        lightOn.material.emissive.set(0x00ff00);
+        lightOff.material.emissive.set(0x000000);
+        startRefueling(motor); // adapte para tanque específico, se necessário
+    } else {
+        lightOn.material.emissive.set(0x000000);
+        lightOff.material.emissive.set(0xff0000);
+        stopRefueling(motor); // idem
+    }
+
+    console.log(`Motor ${motor.running ? 'ligado' : 'desligado'}`);
 }
+
+
+
 window.addEventListener('click', onMouseClick, false);
 
 function onMouseClick(event) {
-    const mouse = new THREE.Vector2(
-        (event.clientX / window.innerWidth) * 2 - 1,
-        -(event.clientY / window.innerHeight) * 2 + 1
-    );
+  const mouse = new THREE.Vector2(
+      (event.clientX / window.innerWidth) * 2 - 1,
+      -(event.clientY / window.innerHeight) * 2 + 1
+  );
 
-    const raycaster = new THREE.Raycaster();
-    raycaster.setFromCamera(mouse, camera);
+  const raycaster = new THREE.Raycaster();
+  raycaster.setFromCamera(mouse, camera);
 
-    const intersects = raycaster.intersectObjects(scene.children, true);
+  const intersects = raycaster.intersectObjects(scene.children, true);
 
-    if (intersects.length > 0) {
-        const clickedObject = intersects[0].object;
+  if (intersects.length > 0) {
+    const clickedObject = intersects[0].object;
 
-        if (clickedObject.name === 'motorButton') {
-            toggleMotor();
-        }
+    if (clickedObject.name === 'motorButton') {
+      // Encontre o painel (pai do botão)
+      const panelGroup = clickedObject.parent;
 
-        // Você pode adicionar outras interações aqui
+      if (panelGroup && panelGroup.userData.motor) {
+        const motorGroup = panelGroup.userData.motor;
+
+        toggleMotor(motorGroup);
+      }
     }
+  }
 }
+
 function showMotorMessage(text, duration = 3000) {
     const msgBox = document.getElementById('motor-message');
     msgBox.innerText = text;

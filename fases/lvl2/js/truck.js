@@ -203,6 +203,7 @@ let truckMovement = {
             switch (truckMovement.state) {
                 case 'going':
                     truck.position.z -= truckMovement.speed;
+                    truckMovement.selectedMotor = null;
 
                     if (truck.userData.wheelGroups) {
                         truck.userData.wheelGroups.forEach(wheel => {
@@ -241,8 +242,22 @@ let truckMovement = {
                         truck.position.z -= 0.2;
                         disconnectHose();
                         truckMovement.state = 'going';
+                    } else {
+                        // Durante a pausa, mostrar qual motor ativar
+
+
+                        if (!truckMovement.selectedMotor) {
+                            if (truck.position.x >= 0) {
+                                truckMovement.selectedMotor = Math.floor(Math.random() * 3) + 1;
+                            } else {
+                                truckMovement.selectedMotor = Math.floor(Math.random() * 3) + 4;
+                            }
+                        }
+                        document.getElementById('objective').innerHTML = 
+                            `Conecte o mangote e ative o motor ${truckMovement.selectedMotor} para reabastecer!`;
                     }
                     break;
+
             }
         }
 

@@ -209,17 +209,18 @@
             // Check for valve interaction
             if (hasLever) {
                 for (const valve of valves) {
-                    if (!valve.activated) {
-                        const distance = camera.position.distanceTo(valve.position);
-                        if (distance < 5) {
-                            const intersects = raycaster.intersectObject(valve.handle);
-                            if (intersects.length > 0) {
-                                activateValve(valve);
-                            }
+                    const distance = camera.position.distanceTo(valve.position);
+                    if (distance < 5) {
+                        const intersects = raycaster.intersectObject(valve.handle);
+                        if (intersects.length > 0) {
+
+                            toggleValve(valve);
                         }
                     }
                 }
             }
+            
+
 
             // Check for hose pickup
             const hosePickupIntersects = raycaster.intersectObjects(
@@ -245,6 +246,63 @@
                 }
             }
         }
+        function toggleValve(valve) {
+
+            if (valve.animating) {
+                return; // previne toggle durante animação
+            }
+
+            if (valve.activated) {
+                deactivateValve(valve);
+            } else {
+                activateValve(valve);
+            }
+            console.log('Toggle valve:', valve);    
+        }
+        function updateSystemState() {
+            tanks.forEach(tank => {
+                const valvesOpen = tank.valves.every(v => v.activated);
+                const motor = tank.motor;
+                const connector = tank.hoseConnector;
+
+                const hoseConnected = connector.userData.connectedTo === 'truck';
+
+                // Motor só pode ser ligado se válvulas abertas + mangote conectado
+                motor.canRun = valvesOpen && hoseConnected;
+
+                // Caminhão só pode ir embora se motor desligado e mangote desconectado
+                if (motor.running && !motor.canRun) {
+                    motor.running = false; // segurança automática
+                }
+
+                // Exemplo de log
+                //console.log(`Tank ${tank.id} – válvulas: ${valvesOpen}, mangote: ${hoseConnected}, motor pronto: ${motor.canRun}`);
+            });
+        }
+        function checkSystemStatus() {
+                let anyTankReady = false;
+
+                tanks.forEach(tank => {
+                    const valvesOpen = tank.valves.every(v => v.activated);
+                    const hoseConnectedToTruck = tank.hoseConnector?.userData.connectedTo === 'truck';
+
+                    const isReady = valvesOpen && hoseConnectedToTruck;
+                    if (isReady) anyTankReady = true;
+
+                    const status = `
+            [TANQUE ${tank.id}]
+            - Válvulas abertas: ${valvesOpen ? 'SIM ✅' : 'NÃO ❌'}
+            - Mangote conectado ao caminhão: ${hoseConnectedToTruck ? 'SIM ✅' : 'NÃO ❌'}
+            - PRONTO para abastecimento: ${isReady ? 'SIM ✅' : 'NÃO ❌'}
+                    `;
+                    console.log(status);
+                });
+
+                return anyTankReady;
+            }
+
+
+
         function animate() {
             requestAnimationFrame(animate);
             
@@ -258,14 +316,31 @@
                 if (cloud.position.z > 250) cloud.position.z = -250;
                 if (cloud.position.z < -250) cloud.position.z = 250;
             });
+            updateSystemState();
 
             // Update valves
+
             valves.forEach(valve => {
-                if (valve.activated && valve.rotation < Math.PI / 2) {
+                if (valve.activated && valve.animating && valve.rotation < Math.PI / 2) {
                     valve.rotation += 0.05;
                     valve.handle.rotation.y = valve.rotation;
+
+                    if (valve.rotation >= Math.PI / 2) {
+                        valve.animating = false;
+                    }
+                }
+
+                if (!valve.activated && valve.animating && valve.rotation > 0) {
+                    valve.rotation -= 0.05;
+                    valve.handle.rotation.y = valve.rotation;
+
+                    if (valve.rotation <= 0) {
+                        valve.animating = false;
+                        valve.rotation = 0; // garantir valor limpo
+                    }
                 }
             });
+
 
             // Update hose if connected
             if (hoseConnected && hoseMesh) {

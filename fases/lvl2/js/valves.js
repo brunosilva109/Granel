@@ -3,7 +3,7 @@ let valves = [];
 let lever = null;
 let hasLever = false;
 let activatedValves = 0;
-let totalValves;
+let totalValves = 2;
 
         function createValve(x, y, z) {
             const valveMaterial = new THREE.MeshStandardMaterial({
@@ -27,16 +27,20 @@ let totalValves;
             scene.add(base);
             scene.add(handle);
 
-            valves.push({
+            const valve = {
                 base: base,
                 handle: handle,
                 position: new THREE.Vector3(x, y, z),
                 activated: false,
                 rotation: 0
-            });
+            };
 
+            valves.push(valve);
             objects.push(base, handle);
+
+            return valve; // <- ESSENCIAL para usar depois
         }
+
 
         function createLever() {
             const leverMaterial = new THREE.MeshStandardMaterial({
@@ -74,6 +78,7 @@ let totalValves;
         function pickLever() {
             hasLever = true;
             lever.picked = true;
+            dropHose();
 
             scene.remove(lever.base);
             scene.remove(lever.handle);
@@ -83,6 +88,14 @@ let totalValves;
 
             document.getElementById('objective').innerHTML =
                 `Ative as Valvulas (${activatedValves}/${totalValves})`;
+        }
+        function dropLever(){
+            hasLever = false;
+            lever.picked = false;
+
+            document.getElementById('hand').classList.remove('visible');
+            handVisible = false;
+            createLever();
         }
 
         function activateValve(valve) {
@@ -105,3 +118,46 @@ let totalValves;
                 }, 1000);
             }
         }
+        
+        function deactivateValve(valve) {
+            if (!valve.activated) return;
+
+            valve.activated = false;
+            activatedValves--;
+
+            valve.base.material.color.set(0xff0000);
+            valve.handle.material.color.set(0xff0000);
+
+            valve.deactivating = true;
+            valve.animating = true;
+
+            document.getElementById('objective').innerHTML =
+                `Ative as Valvulas  (${activatedValves}/${totalValves})`;
+        }
+        function resetAllValves() {
+    tanks.forEach(tank => {
+        // Desativa todas as válvulas
+        tank.valves.forEach(valve => {
+            deactivateValve(valve);
+        });
+
+        // Desliga o motor se estiver ligado
+        const motor = tank.motor;
+        if (motor) {
+            motor.running = false;
+            if (motor.panel) {
+                motor.panel.lightOn.material.emissive.set(0x000000);
+                motor.panel.lightOff.material.emissive.set(0xff0000);
+            }
+        }
+    });
+
+    // Zera o contador global
+    activatedValves = 0;
+
+    document.getElementById('objective').innerHTML =
+        `Ative as Valvulas  (${activatedValves}/${totalValves})`;
+
+    console.log("🔧 Todas as válvulas foram desativadas e motores desligados.");
+}
+
