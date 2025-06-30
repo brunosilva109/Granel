@@ -1,0 +1,77 @@
+/* Reseta o estilo padrão do navegador */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    overflow: hidden; /* Evita barras de rolagem */
+}
+
+/* O canvas ocupa a tela inteira */
+#bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    outline: none;
+}
+
+/* Container para os controles de celular */
+#mobile-controls {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: none; /* Escondido por padrão */
+    pointer-events: none; /* Não interfere com cliques no jogo */
+}
+
+/* Mostra os controles se a classe 'active' for adicionada via JS */
+#mobile-controls.active {
+    display: block;
+}
+
+/* Área do Joystick */
+#joystick-area {
+    position: absolute;
+    bottom: 30px;
+    left: 30px;
+    width: 150px;
+    height: 150px;
+    background-color: rgba(128, 128, 128, 0.4);
+    border-radius: 50%;
+    pointer-events: all; /* Área do joystick pode ser tocada */
+}
+
+#joystick-knob {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 70px;
+    height: 70px;
+    background-color: rgba(255, 255, 255, 0.6);
+    border-radius: 50%;
+}
+
+/* Botão de Pulo */
+#jump-button {
+    position: absolute;
+    bottom: 50px;
+    right: 50px;
+    width: 100px;
+    height: 100px;
+    background-color: rgba(0, 150, 255, 0.5);
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: sans-serif;
+    color: white;
+    font-weight: bold;
+    font-size: 24px;
+    pointer-events: all; /* Botão pode ser tocado */
+    user-select: none; /* Impede a seleção de texto ao tocar */
+}
