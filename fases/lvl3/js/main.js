@@ -1,7 +1,13 @@
 import * as THREE from 'three';
 import * as CANNON from 'cannon-es';
 import { buildWorld, objectsToUpdate } from './world.js';
+import { setupMotors } from './motors.js';
 import { createPlayer, updatePlayer } from './player.js';
+import { setupMobileControls } from './botoes.js';
+import { setupTruckSystem, updateTrucks } from './truck.js';
+import { setupValves, updateValves } from './valves.js';
+import { setupHoseSystem, updateHoseMesh } from './hose.js';
+import { initInteractionSystem, checkInteraction, triggerInteraction, handleDrop } from './interaction.js';
 
 // ---- Cena e Câmera ----
 const scene = new THREE.Scene();
@@ -30,17 +36,26 @@ const physicsWorld = new CANNON.World({
 });
 
 // ---- Construção do Mundo e do Jogador ----
+
 buildWorld(scene, physicsWorld);
 createPlayer(camera, physicsWorld);
+setupHoseSystem(scene, physicsWorld); 
+setupTruckSystem(scene, physicsWorld);
+setupMotors(scene, physicsWorld); 
+setupValves(scene, physicsWorld); 
+
+
+// ---- INICIALIZA O SISTEMA DE INTERAÇÃO (COM O PARÂMETRO CORRETO) ----
+initInteractionSystem(scene, physicsWorld, objectsToUpdate);
 
 // ---- Lógica de Detecção de Celular ----
 function isMobile() {
-    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    return 'ontouchstart' in window || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 }
 
 if (isMobile()) {
     document.getElementById('mobile-controls').classList.add('active');
-    // A lógica dos botões de toque viria aqui, no futuro `botoes.js`
+    setupMobileControls();
 }
 
 // ---- Loop Principal do Jogo (Animate) ----
@@ -49,22 +64,23 @@ const clock = new THREE.Clock();
 function animate() {
     const deltaTime = clock.getDelta();
 
-    // 1. Atualiza o mundo da física
     physicsWorld.step(1 / 60, deltaTime, 3);
 
-    // 2. Atualiza os objetos dinâmicos (sincroniza visual com físico)
     for (const obj of objectsToUpdate) {
-        obj.mesh.position.copy(obj.body.position);
-        obj.mesh.quaternion.copy(obj.body.quaternion);
+        if(obj.mesh && obj.body) {
+          obj.mesh.position.copy(obj.body.position);
+          obj.mesh.quaternion.copy(obj.body.quaternion);
+        }
     }
     
-    // 3. Atualiza a lógica do jogador (movimento e câmera)
     updatePlayer(deltaTime);
+    updateTrucks();
+    updateValves();
+    updateHoseMesh(); 
+    checkInteraction(camera);
 
-    // 4. Renderiza a cena
     renderer.render(scene, camera);
 
-    // Chama o próximo frame
     requestAnimationFrame(animate);
 }
 
