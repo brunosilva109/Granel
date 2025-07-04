@@ -1,14 +1,16 @@
 import * as THREE from 'three';
 import { GameColors } from './config.js';
-import { playerState } from './player.js';
+import { playerState, drop } from './player.js';
 import { isMotorRunning } from './motors.js';
-import { areValvesClosedForMotor } from './valves.js';
+import {areValvesOpenForMotor,areValvesClosedForMotor } from './valves.js';
+import { showInfoToast,updateObjectiveText } from './ui.js';
+import { addError } from './gameState.js';
 
 // =======================================================
 // === PAINEL DE CONTROLE DA MANGUEIRA ===
 // Altere estes valores para customizar o visual da mangueira
 // =======================================================
-const HOSE_RADIUS = 0.2; // <<-- GROSSURA: Aumente este valor para uma mangueira mais grossa (ex: 0.25)
+const HOSE_RADIUS = 0.3; // <<-- GROSSURA: Aumente este valor para uma mangueira mais grossa (ex: 0.25)
 const HOSE_CURVE_FACTOR = 0.5; // <<-- CURVA: Diminua para uma mangueira mais reta (ex: 0.2)
 // =======================================================
 
@@ -43,11 +45,13 @@ export function createHoseConnector(position, motorId) {
 
 export function handleConnection(connector) {
     if (hoseState.isConnected) {
-        console.log("Clique na mangueira para desconectar.");
+        showInfoToast("Clique na mangueira para desconectar.", 3000, 'info');
+        
         return;
     }
     if (!playerState.hasHose) {
-        console.log("Você precisa pegar o mangote primeiro!");
+        showInfoToast("Você precisa pegar o mangote primeiro!", 3000, 'erro');
+        addError();
         return;
     }
     if (!hoseState.firstConnector) {
@@ -61,17 +65,20 @@ export function handleConnection(connector) {
         const start = hoseState.firstConnector.getWorldPosition(new THREE.Vector3());
         const end = hoseState.secondConnector.getWorldPosition(new THREE.Vector3());
         createHoseMesh(start, end);
-        console.log("Mangote conectado!");
+        showInfoToast("Mangote conectado!.", 3000, 'info');
+        
     }
 }
 
 function pickupHose() {
     if (playerState.hasLever) {
-        playerState.hasLever = false; 
-        console.log("Você soltou a alavanca para pegar o mangote.");
+        drop();
+        playerState.hasLever = false;
+         showInfoToast("Você soltou a alavanca para pegar o mangote.", 3000, 'info');
+        
     }
     playerState.hasHose = true;
-    console.log("Mangote coletado!");
+    showInfoToast("Mangote coletado!", 3000, 'info');
 }
 
 function createHoseMesh(startPoint, endPoint) {
@@ -108,13 +115,13 @@ export function updateHoseMesh() {
     for (let i = 0; i <= hoseState.segments; i++) {
         const t = i / hoseState.segments;
         const midPoint = new THREE.Vector3().lerpVectors(startPoint, endPoint, t);
-        // ✅ Usa a constante do topo do arquivo
+        // Usa a constante do topo do arquivo
         midPoint.y -= Math.sin(t * Math.PI) * HOSE_CURVE_FACTOR;
         hoseState.points[i].copy(midPoint);
     }
     
     hoseState.mesh.geometry.dispose(); 
-    // ✅ Usa a constante do topo do arquivo
+    // Usa a constante do topo do arquivo
     hoseState.mesh.geometry = new THREE.TubeGeometry(new THREE.CatmullRomCurve3(hoseState.points), hoseState.segments, HOSE_RADIUS, 8, false);
 }
 
@@ -124,15 +131,23 @@ export function disconnectHose() {
     const motorId = motorConnector.userData.motorId;
 
     if (isMotorRunning(motorId)) {
-        console.log(`PERIGO: Não é possível desconectar. O motor ${motorId} está ligado!`);
+        showInfoToast(`PERIGO: Desligue o motor ${motorId}!`, 3000, 'error');
+        addError();
+        return;
+    }
+    if (areValvesOpenForMotor(motorId)) {
+        showInfoToast(`PERIGO: Feche as válvulas do motor ${motorId} primeiro!`, 3000, 'error');
+        addError();
         return;
     }
     if (!areValvesClosedForMotor(motorId)) {
-        console.log(`PERIGO: Não é possível desconectar. Feche as válvulas do motor ${motorId} primeiro!`);
+        showInfoToast(`PERIGO: Feche as válvulas do motor ${motorId} primeiro!`, 3000, 'error');
+        addError();
+        // Aqui você pode mostrar uma mensagem na tela para o jogador
         return;
     }
 
-    console.log("Sistema seguro. Desconectando o mangote...");
+    showInfoToast("Mangote desconectado com segurança!", 2000, 'info');
     hoseState.firstConnector.material.color.set(GameColors.CONNECTOR_DEFAULT);
     hoseState.secondConnector.material.color.set(GameColors.CONNECTOR_DEFAULT);
     
@@ -146,4 +161,18 @@ export function disconnectHose() {
     
     hoseState.isConnected = false;
     playerState.hasHose = true;
+}
+export function isHoseConnectedTo(motorId, truckConnector) {
+    if (!hoseState.isConnected) return false;
+
+    const c1 = hoseState.firstConnector;
+    const c2 = hoseState.secondConnector;
+
+    // Verifica se um conector é do motor correto e o outro é do caminhão
+    const isMotorConnected = (c1.userData.motorId === motorId && c2 === truckConnector) || (c2.userData.motorId === motorId && c1 === truckConnector);
+    
+    return isMotorConnected;
+}
+export function isHoseSystemIdle() {
+    return !hoseState.isConnected;
 }

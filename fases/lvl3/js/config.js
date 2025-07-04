@@ -20,5 +20,6 @@ export const GameColors = {
     VALVE_INACTIVE: 0xff4444,   // Vermelho para válvula fechada
     TRUCK_CABIN: 0x4682B4,
     TRUCK_TANK: 0xffffff,
-    TRUCK_WHEEL: 0x222222
+    TRUCK_WHEEL: 0x222222,
+    PIPE: 0xaaaaaa,
 };

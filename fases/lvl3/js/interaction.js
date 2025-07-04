@@ -1,9 +1,10 @@
 import * as THREE from 'three';
 import { playerState } from './player.js'; // Importa o estado do jogador
 import { createLever } from './world.js';   // Importa a função de criar a alavanca
+import { showInfoToast,updateObjectiveText } from './ui.js';
 
 const raycaster = new THREE.Raycaster();
-const interactionDistance = 8;
+const interactionDistance = 4;
 
 let sceneRef, worldRef, objectsToUpdateRef;
 let targetedObject = null;
@@ -57,7 +58,7 @@ export function triggerInteraction() {
     // Lógica para coletar a alavanca
     if (targetedObject.userData.interactionType === 'collect') {
         playerState.hasLever = true; // ✅ ATUALIZA O ESTADO DO JOGADOR
-        console.log("Alavanca coletada! Estado do jogador:", playerState);
+        showInfoToast(`Alavanca coletada! `, 3000, '');
         
         // Remove o objeto do mundo
         const bodyToRemove = targetedObject.userData.physicsBody;
@@ -83,7 +84,7 @@ export function triggerInteraction() {
 // ✅ NOVA FUNÇÃO PARA SOLTAR A ALAVANCA
 export function handleDrop(camera) {
     if (!playerState.hasLever) {
-        console.log("Você não tem nada para soltar.");
+        showInfoToast(`Você não tem nada para soltar.`, 3000, '');
         return;
     }
 
@@ -97,5 +98,5 @@ export function handleDrop(camera) {
     
     // Atualiza o estado do jogador
     playerState.hasLever = false;
-    console.log("Alavanca solta! Estado do jogador:", playerState);
+    showInfoToast(`Alavanca solta!`, 3000, '');
 }

@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import * as CANNON from 'cannon-es';
 
+import { GameColors } from './config.js';
 // Array para guardar todos os objetos que precisam de sincronização entre física e visual
 const objectsToUpdate = [];
 
@@ -152,6 +153,48 @@ function createWall({ scene, world, position, size, rotacao }) {
     
     image.src = textureUrl;
 }
+/**
+ * Cria um cano/tubulação com visual e colisão.
+ * @param {object} options - Parâmetros do cano.
+ * @param {THREE.Scene} options.scene - A cena Three.js.
+ * @param {CANNON.World} options.world - O mundo da física.
+ * @param {number} options.length - O comprimento do cano.
+ * @param {object} options.position - Posição {x, y, z}.
+ * @param {object} options.rotation - Rotação {x, y, z} em radianos.
+ */
+function addPipe({ scene, world, length, position, rotation }) {
+    const pipeRadius = 0.35;
+
+    // --- Parte Visual (Three.js) ---
+    const geometry = new THREE.CylinderGeometry(pipeRadius, pipeRadius, length, 16);
+    const material = new THREE.MeshStandardMaterial({
+        color: GameColors.PIPE,
+        metalness: 0.8,
+        roughness: 0.4
+    });
+    const pipeMesh = new THREE.Mesh(geometry, material);
+    pipeMesh.castShadow = true;
+    pipeMesh.receiveShadow = true;
+    
+    // --- Parte Física (Cannon-es) ---
+    const pipeShape = new CANNON.Cylinder(pipeRadius, pipeRadius, length, 16);
+    const pipeBody = new CANNON.Body({
+        mass: 0, // Objeto estático
+        position: new CANNON.Vec3(position.x, position.y, position.z),
+        shape: pipeShape // Adiciona a forma diretamente no construtor
+    });
+
+    // ✅ CORREÇÃO: Rotaciona o CORPO FÍSICO inteiro
+    pipeBody.quaternion.setFromEuler(rotation.x, rotation.y, rotation.z);
+
+    // --- Sincronização e Adição ao Mundo ---
+    // Agora, ao copiar a posição e rotação do corpo, o visual ficará correto.
+    pipeMesh.position.copy(pipeBody.position);
+    pipeMesh.quaternion.copy(pipeBody.quaternion);
+
+    scene.add(pipeMesh);
+    world.addBody(pipeBody);
+}
 
 
 /**
@@ -191,6 +234,241 @@ export function buildWorld(scene, world) {
 
     // ---- Objetos Interativos ----
     createLever(scene, world, { x: 0, y: sidewalkY + (surfaceHeight / 2), z: -5 });
+
+
+     // Cano horizontal que atravessa a calçada central
+     // motor 1
+     addPipe({
+        scene, world,
+        length: 2,
+        position: { x: 18, y: 1.6, z: 5 },
+        rotation: { x: 0, y: 0, z: 0 } // Sem rotação, fica em pé
+    });
+    addPipe({
+        scene, world,
+        length: 1,
+        position: { x: 13.5, y: 1.6, z: 5 },
+        rotation: { x: 0, y: 0, z: 0 } // Sem rotação, fica em pé
+    });
+    
+    
+    addPipe({
+        scene, world,
+        length: 5,
+        position: { x: 15.7, y: 2.3, z: 5 },
+        rotation: { x: 0, y: 0, z: Math.PI / 2 } // Deitado no eixo X
+    });
+    
+    addPipe({
+        scene, world,
+        length: 3,
+        position: { x: 12, y: 0.6, z: 5 },
+        rotation: { x: 0, y: 0, z: Math.PI / 2 } // Deitado no eixo X
+    });
+    addPipe({
+        scene, world,
+        length: 26,
+        position: { x: 23, y: 0.6, z: 18 },
+        rotation: { x: Math.PI / 2, y: 0, z: 0 } // Rotacionado para ficar deitado
+    });
+    addPipe({
+        scene, world,
+        length: 5.5,
+        position: { x: 20.5, y: 0.6, z: 5 },
+        rotation: { x: 0, y: 0, z: Math.PI / 2 } // Deitado no eixo X
+    });
+    //motor 2
+    addPipe({
+        scene, world,
+        length: 2,
+        position: { x: 18, y: 1.6, z: 0 },
+        rotation: { x: 0, y: 0, z: 0 } // Sem rotação, fica em pé
+    });
+    addPipe({
+        scene, world,
+        length: 1,
+        position: { x: 13.5, y: 1.6, z: 0 },
+        rotation: { x: 0, y: 0, z: 0 } // Sem rotação, fica em pé
+    });
+    
+    
+    addPipe({
+        scene, world,
+        length: 5,
+        position: { x: 15.7, y: 2.3, z: 0 },
+        rotation: { x: 0, y: 0, z: Math.PI / 2 } // Deitado no eixo X
+    });
+    
+    addPipe({
+        scene, world,
+        length: 3,
+        position: { x: 12, y: 0.6, z: 0 },
+        rotation: { x: 0, y: 0, z: Math.PI / 2 } // Deitado no eixo X
+    });
+addPipe({
+        scene, world,
+        length: 8,
+        position: { x: 21.7, y: 0.6, z: 0 },
+        rotation: { x: 0, y: 0, z: Math.PI / 2 } // Deitado no eixo X
+    });
+    // motor 3
+
+    addPipe({
+        scene, world,
+        length: 2,
+        position: { x: 18, y: 1.6, z: -5 },
+        rotation: { x: 0, y: 0, z: 0 } // Sem rotação, fica em pé
+    });
+    addPipe({
+        scene, world,
+        length: 1,
+        position: { x: 13.5, y: 1.6, z: -5 },
+        rotation: { x: 0, y: 0, z: 0 } // Sem rotação, fica em pé
+    });
+    
+    
+    addPipe({
+        scene, world,
+        length: 5,
+        position: { x: 15.7, y: 2.3, z: -5 },
+        rotation: { x: 0, y: 0, z: Math.PI / 2 } // Deitado no eixo X
+    });
+    
+    addPipe({
+        scene, world,
+        length: 3,
+        position: { x: 12, y: 0.6, z: -5 },
+        rotation: { x: 0, y: 0, z: Math.PI / 2 } // Deitado no eixo X
+    });
+    addPipe({
+        scene, world,
+        length: 26,
+        position: { x: 23, y: 0.6, z: -18 },
+        rotation: { x: Math.PI / 2, y: 0, z: 0 } // Rotacionado para ficar deitado
+    });
+    addPipe({
+        scene, world,
+        length: 5.5,
+        position: { x: 20.5, y: 0.6, z: -5 },
+        rotation: { x: 0, y: 0, z: Math.PI / 2 } // Deitado no eixo X
+    });
+    
+    // motor 1
+     addPipe({
+        scene, world,
+        length: 2,
+        position: { x: -18, y: 1.6, z: 5 },
+        rotation: { x: 0, y: 0, z: 0 } // Sem rotação, fica em pé
+    });
+    addPipe({
+        scene, world,
+        length: 1,
+        position: { x: -13.5, y: 1.6, z: 5 },
+        rotation: { x: 0, y: 0, z: 0 } // Sem rotação, fica em pé
+    });
+    
+    
+    addPipe({
+        scene, world,
+        length: 5,
+        position: { x: -15.7, y: 2.3, z: 5 },
+        rotation: { x: 0, y: 0, z: Math.PI / 2 } // Deitado no eixo X
+    });
+    
+    addPipe({
+        scene, world,
+        length: 3,
+        position: { x: -12, y: 0.6, z: 5 },
+        rotation: { x: 0, y: 0, z: Math.PI / 2 } // Deitado no eixo X
+    });
+    addPipe({
+        scene, world,
+        length: 26,
+        position: { x: -23, y: 0.6, z: 18 },
+        rotation: { x: Math.PI / 2, y: 0, z: 0 } // Rotacionado para ficar deitado
+    });
+    addPipe({
+        scene, world,
+        length: 5.5,
+        position: { x: -20.5, y: 0.6, z: 5 },
+        rotation: { x: 0, y: 0, z: Math.PI / 2 } // Deitado no eixo X
+    });
+    //motor 2
+    addPipe({
+        scene, world,
+        length: 2,
+        position: { x: -18, y: 1.6, z: 0 },
+        rotation: { x: 0, y: 0, z: 0 } // Sem rotação, fica em pé
+    });
+    addPipe({
+        scene, world,
+        length: 1,
+        position: { x: -13.5, y: 1.6, z: 0 },
+        rotation: { x: 0, y: 0, z: 0 } // Sem rotação, fica em pé
+    });
+    
+    
+    addPipe({
+        scene, world,
+        length: 5,
+        position: { x: -15.7, y: 2.3, z: 0 },
+        rotation: { x: 0, y: 0, z: Math.PI / 2 } // Deitado no eixo X
+    });
+    
+    addPipe({
+        scene, world,
+        length: 3,
+        position: { x: -12, y: 0.6, z: 0 },
+        rotation: { x: 0, y: 0, z: Math.PI / 2 } // Deitado no eixo X
+    });
+addPipe({
+        scene, world,
+        length: 8,
+        position: { x: -21.7, y: 0.6, z: 0 },
+        rotation: { x: 0, y: 0, z: Math.PI / 2 } // Deitado no eixo X
+    });
+    // motor 3
+
+    addPipe({
+        scene, world,
+        length: 2,
+        position: { x: -18, y: 1.6, z: -5 },
+        rotation: { x: 0, y: 0, z: 0 } // Sem rotação, fica em pé
+    });
+    addPipe({
+        scene, world,
+        length: 1,
+        position: { x: -13.5, y: 1.6, z: -5 },
+        rotation: { x: 0, y: 0, z: 0 } // Sem rotação, fica em pé
+    });
+    
+    
+    addPipe({
+        scene, world,
+        length: 5,
+        position: { x: -15.7, y: 2.3, z: -5 },
+        rotation: { x: 0, y: 0, z: Math.PI / 2 } // Deitado no eixo X
+    });
+    
+    addPipe({
+        scene, world,
+        length: 3,
+        position: { x: -12, y: 0.6, z: -5 },
+        rotation: { x: 0, y: 0, z: Math.PI / 2 } // Deitado no eixo X
+    });
+    addPipe({
+        scene, world,
+        length: 26,
+        position: { x: -23, y: 0.6, z: -18 },
+        rotation: { x: Math.PI / 2, y: 0, z: 0 } // Rotacionado para ficar deitado
+    });
+    addPipe({
+        scene, world,
+        length: 5.5,
+        position: { x: -20.5, y: 0.6, z: -5 },
+        rotation: { x: 0, y: 0, z: Math.PI / 2 } // Deitado no eixo X
+    });
+     
 }
 
 

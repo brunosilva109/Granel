@@ -2,7 +2,9 @@ import * as THREE from 'three';
 import * as CANNON from 'cannon-es';
 import { GameColors } from './config.js';
 import { playerState } from './player.js'; // Importa o estado do jogador para saber se ele tem a alavanca
-
+import { isMotorRunning } from './motors.js';
+import { showInfoToast,updateObjectiveText } from './ui.js';
+import { addError } from './gameState.js';
 let scene, world;
 const valves = []; // Array para guardar todas as válvulas
 
@@ -16,17 +18,17 @@ export function setupValves(mainScene, mainWorld) {
     // Layout das 12 válvulas, associadas aos motores
     const valveLayout = [
         // Válvulas do lado direito
-        { motorId: 1, pos: { x: 12, z: 14 } }, { motorId: 1, pos: { x: 12, z: 16 } },
-        { motorId: 2, pos: { x: 12, z: -1 } }, { motorId: 2, pos: { x: 12, z: 1 } },
-        { motorId: 3, pos: { x: 12, z: -16 } }, { motorId: 3, pos: { x: 12, z: -14 } },
+        { motorId: 1, pos: { x: 12, z: 5 } }, { motorId: 1, pos: { x: 23, z: 14 } },
+        { motorId: 2, pos: { x: 12, z: 0 } }, { motorId: 2, pos: { x: 23, z: 0 } },
+        { motorId: 3, pos: { x: 12, z: -5 } }, { motorId: 3, pos: { x: 23, z: -14 } },
         // Válvulas do lado esquerdo
-        { motorId: 4, pos: { x: -12, z: 14 } }, { motorId: 4, pos: { x: -12, z: 16 } },
-        { motorId: 5, pos: { x: -12, z: -1 } }, { motorId: 5, pos: { x: -12, z: 1 } },
-        { motorId: 6, pos: { x: -12, z: -16 } }, { motorId: 6, pos: { x: -12, z: -14 } },
+        { motorId: 4, pos: { x: -12, z: 5 } }, { motorId: 4, pos: { x: -23, z: 14 } },
+        { motorId: 5, pos: { x: -12, z: -0} }, { motorId: 5, pos: { x: -23, z: 0 } },
+        { motorId: 6, pos: { x: -12, z: -5 } }, { motorId: 6, pos: { x: -23, z: -14 } },
     ];
 
     valveLayout.forEach(config => {
-        createValve(config.pos.x, 0, config.pos.z, config.motorId);
+        createValve(config.pos.x, 0.3, config.pos.z, config.motorId);
     });
 }
 
@@ -86,9 +88,20 @@ function createValve(baseX, baseY, baseZ, motorId) {
 function toggleValve(valve) {
     // ✅ VERIFICAÇÃO PRINCIPAL: O jogador tem a alavanca?
     if (!playerState.hasLever) {
-        console.log("Você precisa da alavanca para operar esta válvula!");
+        showInfoToast("Você precisa da alavanca para operar esta válvula!", 3000, 'error');
+        addError();
         // Futuramente, podemos mostrar uma mensagem na tela aqui.
         return;
+    }
+    // ✅ CORREÇÃO BUG 2: Adiciona verificação de segurança
+    // Se a válvula está aberta e o jogador tenta fechá-la
+    if (valve.activated) {
+        // Verifica se o motor associado está ligado
+        if (isMotorRunning(valve.motorId)) {
+             showInfoToast(`Desligue o motor ${valve.motorId} antes de fechar a válvula!`, 3000, 'error');
+             addError();
+            return; // Impede a ação
+        }
     }
 
     valve.activated = !valve.activated; // Inverte o estado (aberta/fechada)
@@ -97,11 +110,12 @@ function toggleValve(valve) {
     if (valve.activated) {
         valve.material.color.set(GameColors.VALVE_ACTIVE);
         valve.targetRotation = Math.PI / 2; // Gira 90 graus
-        console.log(`Válvula do motor ${valve.motorId} ABERTA.`);
+         showInfoToast(`Válvula do motor ${valve.motorId} ABERTA.`, 3000, ' ');
+        
     } else {
         valve.material.color.set(GameColors.VALVE_INACTIVE);
         valve.targetRotation = 0; // Volta à posição original
-        console.log(`Válvula do motor ${valve.motorId} FECHADA.`);
+        showInfoToast(`Válvula do motor ${valve.motorId} FECHADA.`, 3000, ' ');
     }
 }
 
@@ -133,6 +147,16 @@ export function updateValves() {
 }
 export function areValvesClosedForMotor(motorId) {
     const motorValves = valves.filter(v => v.motorId === motorId);
-    // .every() retorna true apenas se a condição for verdadeira para TODOS os elementos
+    // Se não encontrar válvulas (improvável), considera seguro.
+    if (motorValves.length === 0) return true;
+    // .every() garante que TODAS as válvulas estejam desativadas (fechadas).
     return motorValves.every(v => v.activated === false);
+}
+
+export function areValvesOpenForMotor(motorId) {
+    const motorValves = valves.filter(v => v.motorId === motorId);
+    // Se não houver o número esperado de válvulas (2), não pode estar pronto.
+    if (motorValves.length < 2) return false; 
+    // .every() garante que a condição (v.activated === true) seja verdadeira para TODAS as válvulas.
+    return motorValves.every(v => v.activated === true);
 }

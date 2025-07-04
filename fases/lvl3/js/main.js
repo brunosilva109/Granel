@@ -8,6 +8,10 @@ import { setupTruckSystem, updateTrucks } from './truck.js';
 import { setupValves, updateValves } from './valves.js';
 import { setupHoseSystem, updateHoseMesh } from './hose.js';
 import { initInteractionSystem, checkInteraction, triggerInteraction, handleDrop } from './interaction.js';
+import { setupRefuelSystem, updateRefueling } from './refuel.js';
+import { setupGameState, updateGameTimer } from './gameState.js';
+import { isGameRunning } from './gameState.js';
+
 
 // ---- Cena e Câmera ----
 const scene = new THREE.Scene();
@@ -39,11 +43,12 @@ const physicsWorld = new CANNON.World({
 
 buildWorld(scene, physicsWorld);
 createPlayer(camera, physicsWorld);
-setupHoseSystem(scene, physicsWorld); 
+setupHoseSystem(scene, physicsWorld);
+setupRefuelSystem();
 setupTruckSystem(scene, physicsWorld);
 setupMotors(scene, physicsWorld); 
 setupValves(scene, physicsWorld); 
-
+setupGameState(); 
 
 // ---- INICIALIZA O SISTEMA DE INTERAÇÃO (COM O PARÂMETRO CORRETO) ----
 initInteractionSystem(scene, physicsWorld, objectsToUpdate);
@@ -62,6 +67,15 @@ if (isMobile()) {
 const clock = new THREE.Clock();
 
 function animate() {
+    // 1. Pede o próximo quadro. Isso garante que a animação continue fluida.
+    requestAnimationFrame(animate);
+
+    // ✅ TRAVA DE SEGURANÇA
+    // Se a função isGameRunning() retornar 'false' (jogo terminou),
+    // a função para aqui e não executa nenhuma lógica de jogo.
+    if (!isGameRunning()) {
+        return;
+    }
     const deltaTime = clock.getDelta();
 
     physicsWorld.step(1 / 60, deltaTime, 3);
@@ -76,12 +90,14 @@ function animate() {
     updatePlayer(deltaTime);
     updateTrucks();
     updateValves();
-    updateHoseMesh(); 
+    updateHoseMesh();
+     updateGameTimer();
+    updateRefueling(deltaTime);
     checkInteraction(camera);
 
     renderer.render(scene, camera);
 
-    requestAnimationFrame(animate);
+
 }
 
 // Lidar com redimensionamento da janela

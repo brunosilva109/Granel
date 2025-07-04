@@ -68,7 +68,9 @@ export function createPlayer(cam, world) {
 
     setupControls();
 }
-
+export function drop() {
+    handleDrop(camera);
+}
 // Configura os controles de teclado e mouse
 function setupControls() {
     // Teclado

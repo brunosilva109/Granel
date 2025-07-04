@@ -2,7 +2,11 @@ import * as THREE from 'three';
 import * as CANNON from 'cannon-es';
 import { TruckSettings, GameColors } from './config.js';
 import { getRandomMotorIdForSide } from './motors.js';
-import { hoseConnectors, handleConnection } from './hose.js';
+import { hoseConnectors, handleConnection,isHoseSystemIdle } from './hose.js';
+import { resetRefuelSystem } from './refuel.js';
+import { showInfoToast,updateObjectiveText } from './ui.js';
+import { truckCompletedSuccess } from './gameState.js';
+
 
 let scene, world;
 let trucks = []; // Gerencia múltiplos caminhões
@@ -165,23 +169,25 @@ function createTruck(posX, posY, posZ) {
     return { mesh: tankTruckGroup, body: truckBody };
 }
 
-// O restante do arquivo (addTruck, updateTrucks) permanece exatamente igual.
-// ... (copie e cole o resto do seu arquivo aqui se necessário)
 function addTruck(posX, posY, posZ) {
     const newTruck = createTruck(posX, posY, posZ);
     trucks.push({
         ...newTruck,
         state: 'going',
         speed: TruckSettings.SPEED,
-        selectedMotorId: null
+        selectedMotorId: null,
+        refueled: false 
     });
+    resetRefuelSystem();
 }
 
 export function updateTrucks() {
-    const activeTrucks = [];
-    for (const truck of trucks) {
+    // Usamos um loop reverso para poder remover caminhões do array sem problemas
+    for (let i = trucks.length - 1; i >= 0; i--) {
+        const truck = trucks[i];
         const { body, mesh, state, speed } = truck;
-        switch (state) {
+
+        switch (truck.state) {
             case 'going':
                 body.velocity.z = -speed * 60;
                 if (mesh.userData.wheelGroups) {
@@ -193,33 +199,71 @@ export function updateTrucks() {
                     truck.state = 'pausing';
                 }
                 break;
-            case 'pausing':
-                body.velocity.set(0, 0, 0);
 
-                // --- LÓGICA DE SELEÇÃO DE MOTOR ---
-                if (truck.selectedMotorId === null) { // Usa uma propriedade do caminhão
-                    const side = body.position.x > 0 ? 'right' : 'left';
-                    truck.selectedMotorId = getRandomMotorIdForSide(side);
-                    console.log(`Caminhão na pista '${side}' selecionou o motor ${truck.selectedMotorId}`);
+            case 'pausing':
+                body.velocity.set(0, 0, 0); // Garante que o caminhão fique parado
+
+                // ✅ LÓGICA DE PARTIDA (mantida)
+                // Primeiro, verifica se o caminhão já cumpriu sua missão e pode partir.
+                if (truck.refueled && isHoseSystemIdle()) {
+                     updateObjectiveText('Caminhão partindo!');
+                     
+                    truck.state = 'leaving'; // Muda para o estado de partida
+                } else {
+                    // ✅ LÓGICA DE SELEÇÃO DE MOTOR (re-adicionada)
+                    // Se não for hora de partir, e um motor ainda não foi escolhido...
+                    if (truck.selectedMotorId === null) {
+                        const side = body.position.x > 0 ? 'right' : 'left';
+                        truck.selectedMotorId = getRandomMotorIdForSide(side);
+                        updateObjectiveText(`Sistema precisa ser conectado ao Motor ${truck.selectedMotorId}.`);
+                        // Aqui você pode atualizar a UI com o objetivo
+                        // updateObjectiveText(`Conecte o sistema ao motor ${truck.selectedMotorId}`);
+                    }
+                }
+                break;
+            
+            case 'leaving':
+                body.velocity.z = -speed * 60;
+                if (mesh.userData.wheelGroups) {
+                    mesh.userData.wheelGroups.forEach(wheel => wheel.rotation.x += speed * 2);
                 }
                 
-                // Futuramente, a UI mostraria esta informação
-                // document.getElementById('objective').innerHTML = `Ligue o motor ${truck.selectedMotorId}`;
+                if (body.position.z < TruckSettings.END_Z) {
+                    scene.remove(mesh);
+                    truckCompletedSuccess();
+                    world.removeBody(body);
+                    trucks.splice(i, 1);
+                    console.log("Caminhão antigo removido.");
+                    
+                    setTimeout(() => {
+                        console.log("Adicionando novo caminhão.");
+                        addTruck(Math.random() > 0.5 ? 5 : -5, 0, TruckSettings.START_Z);
+                    }, 3000);
+                }
                 break;
         }
-        mesh.position.copy(body.position);
-        mesh.quaternion.copy(body.quaternion);
-        if (body.position.z > TruckSettings.END_Z) {
-            activeTrucks.push(truck);
-        } else {
-            scene.remove(mesh);
-            world.removeBody(body);
+
+        if (truck && truck.mesh && truck.body) {
+            truck.mesh.position.copy(truck.body.position);
+            truck.mesh.quaternion.copy(truck.body.quaternion);
         }
     }
-    trucks = activeTrucks;
-    if (trucks.length === 0) {
-        setTimeout(() => {
-            addTruck(Math.random() > 0.5 ? 5 : -5, 0, TruckSettings.START_Z);
-        }, 3000);
+}
+export function getSelectedMotorId() {
+    // Supondo que você tenha apenas um caminhão por vez. Se tiver múltiplos, precisaremos adaptar.
+    const currentTruck = trucks[0]; 
+    return currentTruck ? currentTruck.selectedMotorId : null;
+}
+
+export function getCurrentTruckConnector() {
+    const currentTruck = trucks[0];
+    if (!currentTruck) return null;
+    // Encontra o conector dentro do mesh do caminhão
+    return currentTruck.mesh.getObjectByName("truck_connector");
+}
+export function setTruckAsRefueled(status) {
+    const currentTruck = trucks[0];
+    if (currentTruck) {
+        currentTruck.refueled = status;
     }
 }

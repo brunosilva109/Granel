@@ -2,7 +2,12 @@ import * as THREE from 'three';
 import * as CANNON from 'cannon-es';
 import { createHoseConnector } from './hose.js';
 import { GameColors } from './config.js';
-
+import { getSelectedMotorId, getCurrentTruckConnector } from './truck.js';
+import { isHoseConnectedTo } from './hose.js';
+import { areValvesOpenForMotor } from './valves.js';
+import { startRefueling, stopRefueling } from './refuel.js';
+import { showInfoToast,updateObjectiveText } from './ui.js';
+import { addError } from './gameState.js';
 let scene, world;
 const motors = []; // Array para guardar todos os objetos de motor
 
@@ -15,7 +20,7 @@ export function setupMotors(mainScene, mainWorld) {
 
     // Posições e configurações dos 6 motores
     const motorLayout = [
-        // Lado Direito
+        // Lado Direito   
         { id: 1, pos: { x: 15, z: 5 }, side: 'right' },
         { id: 2, pos: { x: 15, z: 0 }, side: 'right' },
         { id: 3, pos: { x: 15, z: -5 }, side: 'right' },
@@ -66,11 +71,12 @@ function createMotor(baseX, baseY, baseZ, id, side) {
 
     // --- Plaquinha de Identificação ---
     const idPlate = createIdPlate(id);
-    idPlate.position.set(0, 1.5, -0.8);
+    idPlate.position.set(0, 1.5, 0);
+    idPlate.rotation.y = -Math.PI/2;
     motorGroup.add(idPlate);
     scene.add(motorGroup);
      // ✅ ADICIONA O CONECTOR DO MOTOR
-    const motorConnectorPosition = new THREE.Vector3(baseX, 1, baseZ - 2); // Posição do conector
+    const motorConnectorPosition = new THREE.Vector3(baseX-4.5, 0.6, baseZ); // Posição do conector
     createHoseConnector(motorConnectorPosition, id);
 
     // --- Corpo Físico para Colisão ---
@@ -162,22 +168,54 @@ function createIdPlate(id) {
 }
 
 function toggleMotor(motor) {
-    // A lógica de verificação (se o mangote está conectado, etc.) virá depois
-    // Por enquanto, apenas liga e desliga
-    motor.running = !motor.running;
-    
-    const lights = motor.panel.userData.lights;
+    // Se o motor já está ligado, permite desligar sem verificações.
     if (motor.running) {
-        lights.on.material.emissive.setHex(0x00ff00);
-        lights.off.material.emissive.setHex(0x000000);
-        console.log(`Motor ${motor.id} LIGADO`);
-    } else {
+        motor.running = false;
+        
+        const lights = motor.panel.userData.lights;
         lights.on.material.emissive.setHex(0x000000);
         lights.off.material.emissive.setHex(0xff0000);
-        console.log(`Motor ${motor.id} DESLIGADO`);
+        console.log(`Motor ${motor.id} DESLIGADO.`);
+         stopRefueling();
+        return;
     }
-}
 
+    // --- VERIFICAÇÕES PARA LIGAR O MOTOR ---
+    const selectedMotorId = getSelectedMotorId();
+    const truckConnector = getCurrentTruckConnector();
+
+    // 1. O caminhão selecionou este motor?
+    if (motor.id !== selectedMotorId) {
+        showInfoToast(`AÇÃO BLOQUEADA: Este não é o motor correto. O caminhão selecionou o motor ${selectedMotorId}.`, 3000, 'error');
+        
+        // Mostrar mensagem na tela aqui
+        return;
+    }
+
+    // 2. A mangueira está conectada a este motor e ao caminhão?
+    if (!isHoseConnectedTo(motor.id, truckConnector)) {
+        showInfoToast(`AÇÃO BLOQUEADA: Conecte a mangueira entre o motor ${motor.id} e o caminhão.`, 3000, 'error');
+        // Mostrar mensagem na tela aqui
+        return;
+    }
+
+    // 3. As válvulas deste motor estão abertas?
+    if (!areValvesOpenForMotor(motor.id)) {
+        showInfoToast(`AÇÃO BLOQUEADA: Abra as duas válvulas do motor ${motor.id} primeiro.`, 3000, 'error');
+        // Mostrar mensagem na tela aqui
+        return;
+    }
+
+    // Se todas as verificações passaram, LIGA O MOTOR!
+    showInfoToast(`Sistema OK! Ligando o motor e iniciando abastecimento...`, 3000, '');
+    
+    motor.running = true;
+    const lights = motor.panel.userData.lights;
+    lights.on.material.emissive.setHex(0x00ff00);
+    lights.off.material.emissive.setHex(0x000000);
+    
+     startRefueling(); // <-- Chamaremos a função de abastecimento aqui na próxima etapa.
+}
 /**
  * Pega um ID de motor aleatório do lado especificado ('left' ou 'right').
  */
