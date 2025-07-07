@@ -76,7 +76,10 @@ function createMotor(baseX, baseY, baseZ, id, side) {
     motorGroup.add(idPlate);
     scene.add(motorGroup);
      // ✅ ADICIONA O CONECTOR DO MOTOR
-    const motorConnectorPosition = new THREE.Vector3(baseX-4.5, 0.6, baseZ); // Posição do conector
+     let posXC;
+     if(baseX>=0) posXC =baseX-4.5;
+     else posXC =baseX+4.5;
+    const motorConnectorPosition = new THREE.Vector3(posXC, 0.6, baseZ); // Posição do conector
     createHoseConnector(motorConnectorPosition, id);
 
     // --- Corpo Físico para Colisão ---
@@ -113,7 +116,7 @@ function createMotor(baseX, baseY, baseZ, id, side) {
     motors.push(motorObject);
 }
 
-// Em js/motors.js
+
 
 function createMotorPanel() {
     const panelGroup = new THREE.Group();
@@ -131,8 +134,6 @@ function createMotorPanel() {
     const button = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.15, 0.05, 32), new THREE.MeshStandardMaterial({ color: 0x0088ff }));
     button.rotation.x = Math.PI / 2;
     button.position.set(0, -0.05, 0.1);
-    
-    // ✅ MUDANÇA: Damos um nome ao botão para ajudar na depuração
     button.name = 'motor_button'; 
     
     button.userData = {

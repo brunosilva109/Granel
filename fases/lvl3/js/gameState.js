@@ -6,7 +6,7 @@ const gameState = {
     currentTruckScore: 100,
     currentTruckErrors: 0,
     trucksCompleted: 0,
-    totalTrucksInMatch: 1,
+    totalTrucksInMatch: 5,
     gameStartTime: 0,
     isGameActive: true,
 };

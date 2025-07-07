@@ -9,7 +9,7 @@ export const TruckSettings = {
     CABIN_HEIGHT: 3,
     CABIN_DEPTH: 2,
     TANK_RADIUS: 1.5,
-    TANK_LENGTH: 6,
+    TANK_LENGTH: 8.5,
     WHEEL_RADIUS: 0.5,
     WHEEL_WIDTH: 0.4
 };
