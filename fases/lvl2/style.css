@@ -1,0 +1,256 @@
+/* Reseta o estilo padrão do navegador */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    overflow: hidden;
+}
+
+#bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    outline: none;
+}
+
+/* MIRA */
+#crosshair {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 24px;
+    font-family: monospace;
+    text-shadow: 1px 1px 2px black;
+    pointer-events: none; /* A mira não pode ser clicada */
+}
+
+
+/* --- CONTROLES DE CELULAR --- */
+#mobile-controls {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: none;
+    pointer-events: none;
+}
+
+#mobile-controls.active {
+    display: flex; /* Usamos flex para alinhar melhor */
+    justify-content: space-between;
+    align-items: flex-end;
+    padding: 30px;
+}
+
+/* Área do Joystick */
+#joystick-area {
+    width: 150px;
+    height: 150px;
+    background-color: rgba(128, 128, 128, 0.4);
+    border-radius: 50%;
+    pointer-events: all;
+    position: relative; /* Mudança para position relative */
+}
+
+#joystick-knob {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 70px;
+    height: 70px;
+    background-color: rgba(255, 255, 255, 0.6);
+    border-radius: 50%;
+}
+
+/* Container para os botões de ação */
+#action-buttons {
+    display: flex;
+    flex-direction: column-reverse; /* Pulo fica embaixo */
+    gap: 20px;
+    pointer-events: all;
+}
+
+/* Estilo unificado para os botões de ação */
+.action-btn {
+    width: 90px;
+    height: 90px;
+    background-color: rgba(0, 150, 255, 0.5);
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: sans-serif;
+    color: white;
+    font-weight: bold;
+    font-size: 20px;
+    user-select: none;
+    cursor: pointer;
+}
+
+#interact-button {
+    background-color: rgba(40, 200, 100, 0.5);
+}
+#refuel-progress {
+    display: none; /* Começa escondido */
+    position: fixed;
+    bottom: 50px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 300px;
+    height: 30px;
+    background-color: rgba(0, 0, 0, 0.5);
+    border: 2px solid #fff;
+    border-radius: 5px;
+    padding: 2px;
+}
+
+#refuel-bar {
+    width: 0%; /* Começa vazia */
+    height: 100%;
+    background-color: #4caf50; /* Verde */
+    border-radius: 3px;
+    transition: width 0.1s linear;
+}
+
+#refuel-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px black;
+}
+/* Em style.css */
+
+#objective {
+    /* Posicionamento */
+    position: fixed;
+    top: 30px; /* Distância do topo */
+    left: 50%;
+    transform: translateX(-50%); /* Centraliza horizontalmente */
+    z-index: 10; /* Garante que fique sobre outros elementos */
+    
+    /* Aparência da Caixa */
+    background-color: rgba(0, 0, 0, 0.6); /* Fundo preto com 60% de transparência */
+    border: 1px solid rgba(255, 255, 255, 0.2); /* Borda branca sutil */
+    border-radius: 8px; /* Cantos arredondados */
+    padding: 12px 20px; /* Espaçamento interno */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5); /* Sombra para dar profundidade */
+    
+    /* Estilo do Texto */
+    color: #ffffff; /* Texto branco */
+    font-family: Arial, sans-serif; /* Fonte limpa */
+    font-size: 16px;
+    font-weight: bold;
+    text-align: center;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8); /* Sombra no texto para legibilidade */
+    
+    /* Animação suave */
+    transition: opacity 0.5s ease-in-out;
+
+    /* Outras propriedades */
+    max-width: 80%; /* Evita que o texto fique muito largo em telas grandes */
+    pointer-events: none; /* Impede que o mouse clique na caixa */
+}
+
+/* Estilo para a mensagem temporária (Toast) */
+#info-toast {
+    position: fixed;
+    bottom: 15%; /* Posição na parte de baixo da tela */
+    left: 50%;
+    transform: translateX(-50%);
+    
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 20px;
+    font-family: sans-serif;
+    text-align: center;
+    z-index: 20;
+
+    /* Começa invisível e fora da tela */
+    opacity: 0;
+    transform: translate(-50%, 20px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+    pointer-events: none; /* Não pode ser clicado */
+}
+
+/* Classe para mostrar o toast com animação */
+#info-toast.show {
+    opacity: 1;
+    transform: translate(-50%, 0);
+}
+
+/* Cores diferentes para tipos de mensagem */
+#info-toast.error {
+    background-color: rgba(220, 50, 50, 0.8); /* Fundo vermelho para erros */
+}
+#info-toast.info {
+    background-color: rgba(50, 150, 220, 0.8); /* Fundo azul para informações */
+}
+
+/* Em style.css */
+
+#game-stats {
+    position: fixed;
+    top: 15px;
+    left: 20px;
+    color: white;
+    font-family: monospace;
+    font-size: 20px;
+    text-shadow: 2px 2px 4px black;
+    z-index: 10;
+}
+
+#game-over-screen {
+    display: none; /* Começa escondido */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    z-index: 100;
+    font-family: sans-serif;
+}
+
+#game-over-screen h1 {
+    font-size: 4em;
+    color: #4caf50;
+}
+
+#game-over-screen h2, #game-over-screen h3 {
+    font-size: 2em;
+    margin: 10px 0;
+}
+
+#restart-game-btn {
+    margin-top: 30px;
+    padding: 15px 30px;
+    font-size: 1.5em;
+    cursor: pointer;
+    border: 2px solid white;
+    background-color: transparent;
+    color: white;
+    border-radius: 5px;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+#restart-game-btn:hover {
+    background-color: white;
+    color: black;
+}
