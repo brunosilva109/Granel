@@ -56,7 +56,7 @@ export function triggerInteraction() {
     }
     if (targetedObject.userData.interactionType === 'collect') {
         playerState.hasLever = true; 
-        showInfoToast(`Alavanca coletada! `, 3000, '');
+        showInfoToast(`Altorizações coletadas! `, 3000, '');
         const bodyToRemove = targetedObject.userData.physicsBody;
         if (bodyToRemove) {
             const indexToRemove = objectsToUpdateRef.findIndex(obj => obj.body === bodyToRemove);

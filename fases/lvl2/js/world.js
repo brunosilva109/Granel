@@ -56,7 +56,7 @@ export function createObject({ scene, world, type = 'box', textureURL, color, si
 export async function createLever(scene, world, position) {
 
     const body = new CANNON.Body({
-        mass: 1, 
+        mass: 0, 
         position: new CANNON.Vec3(position.x, position.y + 3, position.z),
         shape: new CANNON.Box(new CANNON.Vec3(0.25, 0.1, 0.25)),
     });
@@ -65,11 +65,11 @@ export async function createLever(scene, world, position) {
     const leverGroup = new THREE.Group();
     scene.add(leverGroup);
     await importarModelo3D({
-        caminho: 'assets/valvula.glb',
+        caminho: 'assets/paper.glb',
         cena: scene,
         pai: leverGroup,
         isGlowing: true,
-        escala: new THREE.Vector3(0.2, 0.2, 0.2)
+        escala: new THREE.Vector3(3, 3, 3)
     });
     leverGroup.userData = {
         isInteractable: true,

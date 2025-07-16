@@ -379,9 +379,6 @@ body {
     }
 }
 
-/* Em style.css */
-
-/* Estilo para a tarefa atual (destaque total) */
 #task-list li.current-task {
     font-weight: bold;
     opacity: 1;

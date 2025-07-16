@@ -11,9 +11,6 @@ let questState = {
 const missionLogElement = document.getElementById('mission-log');
 const taskListElement = document.getElementById('task-list');
 
-/**
- * Renderiza/atualiza a aba de missões na tela com base no estado atual.
- */
 function renderQuestUI() {
     if (!questState.isActive) {
         missionLogElement.style.display = 'none';
