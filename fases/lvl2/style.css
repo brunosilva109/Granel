@@ -355,3 +355,58 @@ body {
 #mobile-pause-btn.active {
     display: flex;
 }
+@media (max-width: 768px) {
+
+    /* ✅ AJUSTE AQUI: Diminui a caixa da missão */
+    #mission-log {
+        width: 220px;      /* Largura menor, ajuste se precisar */
+        padding: 8px 12px;   /* Menos espaçamento interno (8px em cima/baixo, 12px nos lados) */
+        top: 10px;           /* Mais perto do topo */
+        right: 10px;         /* Mais perto da borda */
+    }
+
+    /* Reduz o tamanho da fonte do título da missão */
+    #mission-log h2 {
+        font-size: 15px;      /* Fonte do título menor */
+        padding-bottom: 6px;  /* Menos espaçamento abaixo do título */
+        margin-bottom: 6px;   /* Menos margem abaixo do título */
+    }
+
+    /* Reduz o tamanho da fonte e o espaçamento das tarefas */
+    #task-list li {
+        font-size: 13px;      /* Fonte das tarefas menor */
+        padding: 5px 0;       /* Menos espaçamento entre as tarefas */
+    }
+}
+
+/* Em style.css */
+
+/* Estilo para a tarefa atual (destaque total) */
+#task-list li.current-task {
+    font-weight: bold;
+    opacity: 1;
+    color: #ffffff; /* Branco brilhante */
+}
+
+/* Estilo para a tarefa seguinte (mais sutil) */
+#task-list li.next-task {
+    opacity: 0.6;
+    font-size: 0.9em; /* Um pouco menor */
+    padding-left: 20px; /* Espaço para o ícone */
+    position: relative;
+}
+
+/* Adiciona uma setinha para indicar "próximo" */
+#task-list li.next-task::before {
+    content: '→';
+    position: absolute;
+    left: 0;
+    top: 5px; /* Ajuste a posição vertical da seta se necessário */
+}
+
+/* O estilo para tarefas completas continua o mesmo */
+#task-list li.completed {
+    color: #32CD32; /* Verde-limão */
+    opacity: 1;
+    text-decoration: line-through;
+}
