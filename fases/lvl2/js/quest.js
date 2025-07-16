@@ -26,18 +26,49 @@ function renderQuestUI() {
     // Limpa a lista de tarefas antiga
     taskListElement.innerHTML = '';
 
-    // Cria e adiciona cada item da lista de tarefas
-    questState.tasks.forEach(task => {
-        const li = document.createElement('li');
-        const checkbox = task.completed ? '✅' : '🔲';
-        li.innerHTML = `${checkbox} ${task.text}`;
+    // Encontra o índice da primeira tarefa incompleta
+    const currentTaskIndex = questState.tasks.findIndex(task => !task.completed);
 
-        if (task.completed) {
+    // Se não encontrou tarefas incompletas, todas estão concluídas
+    if (currentTaskIndex === -1) {
+        // Pega a última tarefa da lista para exibir como finalizada
+        const lastTask = questState.tasks[questState.tasks.length - 1];
+        if (lastTask) {
+            const li = document.createElement('li');
+            li.innerHTML = `✅ ${lastTask.text}`;
             li.classList.add('completed');
+            taskListElement.appendChild(li);
+
+            // Adiciona uma mensagem de "Missão Concluída"
+            const completionLi = document.createElement('li');
+            completionLi.innerText = "Missão Concluída!";
+            completionLi.style.fontWeight = 'bold';
+            completionLi.style.color = '#32CD32';
+            taskListElement.appendChild(completionLi);
         }
-        
+        return;
+    }
+
+    // Pega a tarefa atual e a próxima
+    const currentTask = questState.tasks[currentTaskIndex];
+    const nextTask = questState.tasks[currentTaskIndex + 1]; // Será 'undefined' se não houver próxima
+
+    // Renderiza a tarefa ATUAL
+    if (currentTask) {
+        const li = document.createElement('li');
+        // A tarefa atual sempre está incompleta, então o checkbox é 🔲
+        li.innerHTML = `🔲 ${currentTask.text}`;
+        li.classList.add('current-task'); // Adiciona a classe para destaque
         taskListElement.appendChild(li);
-    });
+    }
+
+    // Renderiza a PRÓXIMA tarefa, se ela existir
+    if (nextTask) {
+        const li = document.createElement('li');
+        li.innerHTML = `🔲 ${nextTask.text}`;
+        li.classList.add('next-task'); // Adiciona a classe para estilo sutil
+        taskListElement.appendChild(li);
+    }
 }
 export function isTaskCompleted(taskId) {
     if (!questState.isActive) return false;
