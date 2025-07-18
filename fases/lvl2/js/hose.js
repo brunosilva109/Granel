@@ -32,7 +32,7 @@ export async function createHosePickup(x, y, z, scene) {
         cena: scene,
         posicao: new THREE.Vector3(x, y, z),
         isGlowing: true,
-        escala: new THREE.Vector3(0.5, 0.5, 0.5)
+        escala: new THREE.Vector3(0.2, 0.2, 0.2)
     });
 
     if (hoseModel) {
