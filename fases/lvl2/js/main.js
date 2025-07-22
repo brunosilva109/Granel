@@ -14,7 +14,6 @@ import { setupRefuelSystem, updateRefueling } from './refuel.js';
 import { setupGameState, updateGameTimer, isGameRunning } from './gameState.js';
 import { setupPauseControls } from './pause.js';
 
-// ✅ Exporta o array para que outros arquivos possam usá-lo
 export const floatingObjects = [];
 
 // ---- Configurações Iniciais da Cena e do Renderizador ----
@@ -63,6 +62,11 @@ async function initGame() {
     }
     
     console.log("Jogo inicializado. Começando animação...");
+    const loadingScreen = document.getElementById('loading-screen');
+    loadingScreen.classList.add('hidden'); // Adiciona a classe para iniciar a animação do CSS
+
+    // Opcional, mas recomendado: remove o elemento da página após a animação
+    setTimeout(() => loadingScreen.remove(), 800); // O tempo deve ser igual ao da transição no CSS
     // Inicia o loop de animação SÓ DEPOIS que tudo foi carregado
     animate();
 }
