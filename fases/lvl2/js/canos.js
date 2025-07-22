@@ -123,7 +123,7 @@ export function criarCano(scene, world){
         });    
         clonarModelo(moldeDoCanoRetoCurto, {
             scene: scene,
-            position: new THREE.Vector3(-24.4, .63, 18.25),           
+            position: new THREE.Vector3(-24.3, .63, 18.25),           
             scale: new THREE.Vector3(0.3, .45, .3),
             rotation: new THREE.Euler(0,0, Math.PI/2)
         });
@@ -212,7 +212,7 @@ export function criarCano(scene, world){
         });    
         clonarModelo(moldeDoCanoRetoCurto, {
             scene: scene,
-            position: new THREE.Vector3(-24.4, .63, -18.25),           
+            position: new THREE.Vector3(-24.3, .63, -18.25),           
             scale: new THREE.Vector3(0.3, .45, .3),
             rotation: new THREE.Euler(0,0, Math.PI/2)
         });
