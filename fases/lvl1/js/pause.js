@@ -16,6 +16,7 @@ const mobilePauseBtn = document.getElementById('mobile-pause-btn');
  * 2. Chama a função para pausar a lógica do jogo.
  */
 function openPauseMenu() {
+    document.exitPointerLock();
     pauseMenuContainer.classList.add('active');
     // Só alterna o estado se o jogo não estiver pausado
     if (!isGamePaused()) {
@@ -67,4 +68,5 @@ export function setupPauseControls() {
     // Ouvintes para os outros botões (sem alterações)
     restartBtn.addEventListener('click', () => { window.location.reload(); });
     mainMenuBtn.addEventListener('click', () => { window.location.href = 'index.html'; });
+
 }
