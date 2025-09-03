@@ -73,6 +73,7 @@ export function setupMobileControls() {
                 // Se não houver um dedo no joystick ainda, este se torna o dedo do joystick
                 if (joystickTouchId === null) {
                     joystickTouchId = touch.identifier;
+                     console.log(`Toque ID: ${touch.identifier} ASSUMIU o controle do JOYSTICK.`);
                     handleJoystickMove(touchX, touchY);
                 }
             } else if (cameraTouchId === null && !touch.target.closest('#action-buttons')) {
@@ -80,6 +81,7 @@ export function setupMobileControls() {
                 cameraTouchId = touch.identifier;
                 lastCameraTouch.x = touchX;
                 lastCameraTouch.y = touchY;
+                console.log(`Toque ID: ${touch.identifier} ASSUMIU o controle da CÂMERA.`);
             }
         }
     }, { passive: false });
