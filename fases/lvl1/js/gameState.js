@@ -8,7 +8,7 @@ const gameState = {
     currentTruckScore: 100,
     currentTruckErrors: 0,
     trucksCompleted: 0,
-    totalTrucksInMatch: 5,
+    totalTrucksInMatch: 2,
     gameStartTime: 0,
     isGameActive: true,
 };
@@ -77,4 +77,5 @@ function formatTime(ms) {
     const minutes = Math.floor(totalSeconds / 60).toString().padStart(2, '0');
     const seconds = (totalSeconds % 60).toString().padStart(2, '0');
     return `${minutes}:${seconds}`;
+
 }
