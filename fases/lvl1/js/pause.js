@@ -67,6 +67,7 @@ export function setupPauseControls() {
 
     // Ouvintes para os outros botões (sem alterações)
     restartBtn.addEventListener('click', () => { window.location.reload(); });
-    mainMenuBtn.addEventListener('click', () => { window.location.href = 'index.html'; });
+    mainMenuBtn.addEventListener('click', () => { window.location.href = '../../../fase.html'; });
 
 }
+
