@@ -3,6 +3,8 @@ import * as THREE from 'three';
 import { playerState } from './player.js';
 import { createLever } from './world.js'; 
 import { showInfoToast} from './ui.js';
+import { completeTask, isTaskCompleted } from './quest.js';
+import { markAsCollected } from './collectibles.js';
 
 const raycaster = new THREE.Raycaster();
 const interactionDistance = 4;
@@ -58,6 +60,8 @@ export function triggerInteraction() {
     if (targetedObject.userData.interactionType === 'collect') {
         playerState.hasLever = true; 
         showInfoToast(`Altorizações coletadas! `, 3000, '');
+        markAsCollected('lever');
+        completeTask('collect_lever');
         const bodyToRemove = targetedObject.userData.physicsBody;
         if (bodyToRemove) {
             const indexToRemove = objectsToUpdateRef.findIndex(obj => obj.body === bodyToRemove);

@@ -18,7 +18,7 @@ export function setupRefuelSystem() {
 
 export function startRefueling() {
     if (refuelState.isActive) return;
-    showInfoToast(`Abastecendo!!`, 3000, 'error');
+    showInfoToast(`Descarregando!!`, 3000, 'info');
     
     refuelState.isActive = true;
 
@@ -28,7 +28,7 @@ export function startRefueling() {
 
 export function stopRefueling() {
     if (!refuelState.isActive) return;
-    showInfoToast(`Abastecimento interrompido.!!`, 3000, 'error');
+    showInfoToast(`Descarga interrompida.!!`, 3000, 'info');
     refuelState.isActive = false;
 
 }

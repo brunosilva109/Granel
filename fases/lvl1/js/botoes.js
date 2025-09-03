@@ -1,4 +1,3 @@
-//botoes.js
 import { moveState, attemptJump, rotateCamera } from './player.js';
 import { triggerInteraction } from './interaction.js';
 

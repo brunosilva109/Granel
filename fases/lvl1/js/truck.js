@@ -7,7 +7,7 @@ import { resetRefuelSystem } from './refuel.js';
 import { truckCompletedSuccess } from './gameState.js';
 import { importarModelo3D } from './utils.js';
 import { startQuest,isTaskCompleted} from './quest.js';
-
+import { hasBeenCollected } from './collectibles.js';
 import {  createTravaPreview} from './trava.js';
 let scene, world;
 let criar =false;
@@ -109,11 +109,26 @@ export function updateTrucks() {
                 if (truck.refueled && isHoseSystemIdle() &&isTaskCompleted('remove_trava')) {
                     criar = false;
                     truck.state = 'leaving';
-                } else {
-                    if (truck.selectedMotorId === null) {
-                        const side = body.position.x < 0 ? 'right' : 'left';
-                        truck.selectedMotorId = getRandomMotorIdForSide(side);
-                        startQuest('Descarregar Caminhão', [
+                } else if (truck.selectedMotorId === null) {
+                    const side = 'right';
+                    truck.selectedMotorId = getRandomMotorIdForSide(side);
+                    
+                    // --- ✅ LÓGICA DE MISSÃO DINÂMICA ---
+                    const tasks = [];
+
+                    // 1. Adiciona as tarefas de coleta SOMENTE se os itens ainda não foram pegos
+                    if (!hasBeenCollected('lever')) {
+                        tasks.push({ id: 'collect_lever', text: 'Colete as Autorizações', completed: false });
+                    }
+                    if (!hasBeenCollected('trava')) {
+                        tasks.push({ id: 'collect_trava', text: 'Colete a Trava de Segurança', completed: false });
+                    }
+                    if (!hasBeenCollected('hose')) {
+                        tasks.push({ id: 'collect_hose', text: 'Colete o Mangote', completed: false });
+                    }
+
+                    // 2. Adiciona as tarefas padrão do caminhão
+                    const truckTasks = [
                         { id: 'place_trava', text: 'Posicione a Trava de segurança', completed: false },
                         { id: 'connect_hose', text: `Conecte o mangote ao Motor ${truck.selectedMotorId}`, completed: false },
                         { id: 'open_valves', text: 'Abra as válvulas (0/2)', completed: false },
@@ -122,8 +137,10 @@ export function updateTrucks() {
                         { id: 'close_valves', text: 'Feche as válvulas (0/2)', completed: false },
                         { id: 'disconnect_hose', text: 'Retire o mangote', completed: false },
                         { id: 'remove_trava', text: 'Remova a Trava para liberar', completed: false }
-                        ]);
-                    }
+                    ];
+
+                    // 3. Junta as listas e inicia a missão
+                    startQuest('Descarregar Caminhão', [...tasks, ...truckTasks]);
                 }
                 break;
             

@@ -3,7 +3,7 @@ import { updateScore, updateTimer, updateTruckCounter, showGameOverScreen, hideG
 
 const gameState = {
     running: false,
-    paused: false, // ✅ NOVO: Estado de pause
+    paused: false, 
     totalScore: 0,
     currentTruckScore: 100,
     currentTruckErrors: 0,
@@ -12,7 +12,7 @@ const gameState = {
     gameStartTime: 0,
     isGameActive: true,
 };
-// ✅ NOVA FUNÇÃO: Alterna o estado de pause
+
 export function togglePauseGame() {
     gameState.paused = !gameState.paused;
     console.log("Jogo pausado:", gameState.paused);

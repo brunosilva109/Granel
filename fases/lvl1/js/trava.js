@@ -4,6 +4,7 @@
     import { playerState } from './player.js';
     import { showInfoToast } from './ui.js';
     import { completeTask, isTaskCompleted } from './quest.js';
+    import { markAsCollected } from './collectibles.js';
     // --- Variáveis de Módulo ---
     let scene, world;
     const state = {
@@ -16,13 +17,13 @@
     // === PAINEL DE CONTROLE DA TRAVA ===
     // Altere os valores abaixo para reposicionar os objetos.
     // =======================================================================
-    const INITIAL_POSITION = new THREE.Vector3(-25, 0.1, 25);
-    const INITIAL_ROTATION = new THREE.Euler(0, -Math.PI / 2, 0);
+    const INITIAL_POSITION = new THREE.Vector3(-22, 0.1, 21.8);
+    const INITIAL_ROTATION = new THREE.Euler(0, 0, 0);
 
     const TARGET_POSITION = new THREE.Vector3(-28.5, 0.1, 41); // Posição do alvo
     const TARGET_ROTATION = new THREE.Euler(0, -Math.PI / 2, 0);    // Rotação do alvo
     // =======================================================================
-
+    let travaColocada = false;
     /**
      * Função principal que inicializa o sistema da trava.
      */
@@ -31,7 +32,9 @@
         world = options.world;
         createCollectibleTrava();
     }
-
+    export function travanolugar(){
+        return  travaColocada;
+    }
     // --- Funções de Criação e Interação ---
 
     function createChockGeometry() {
@@ -63,6 +66,8 @@
                 state.collectible = null;
                 
                 showInfoToast("Trava coletada!", 2000, 'info');
+                markAsCollected('trava');
+                completeTask('collect_trava');
             }
         };
         state.collectible = { mesh, body };
@@ -87,6 +92,7 @@
                     playerState.hasTrava = false;
                     scene.remove(mesh);
                     state.preview = null;
+                    travaColocada = true
                     createPlacedTrava();
                     showInfoToast("Trava posicionada.", 2000, 'info');
                     completeTask('place_trava');
@@ -119,6 +125,7 @@
                         playerState.hasTrava = true; // Pega de volta
                         world.removeBody(body);
                         scene.remove(mesh);
+                        travaColocada = false
                         state.placed = null;
                         showInfoToast("Trava removida.", 2000, 'info');
                         completeTask('remove_trava');

@@ -10,6 +10,8 @@ import { importarModelo3D } from './utils.js';
 import { floatingObjects } from './main.js';
 import { completeTask, isTaskCompleted } from './quest.js';
 import { getTargetMotorId, getCurrentTruckConnector } from './truck.js';
+import { travanolugar} from './trava.js';
+import { markAsCollected } from './collectibles.js';
 
 
 
@@ -78,7 +80,11 @@ export function handleConnection(clickedConnector) {
         addError();
         return;
     }
-
+     if (!travanolugar()) {
+        showInfoToast("Posicione a trava de segurança primeiro!", 3000, 'error');
+        addError(); // Penaliza o jogador pelo erro
+        return;
+    }
     // Primeiro clique: seleciona o primeiro conector
     if (!hoseState.firstConnector) {
         hoseState.firstConnector = clickedConnector;
@@ -138,7 +144,8 @@ function resetFailedConnection() {
 function pickupHose(hoseModel) {
     playerState.hasHose = true;
     showInfoToast("Mangote coletado!", 3000, 'info');
-    
+    markAsCollected('hose'); 
+    completeTask('collect_hose');
     // Remove da lista de animação
     const index = floatingObjects.indexOf(hoseModel);
     if (index > -1) {
